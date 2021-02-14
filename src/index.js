@@ -38,15 +38,31 @@ const source = `
 const lex = new Lexer( source );
 lex.startTokenization();
 
+// Shitty syntax highlighting
 const output = lex.tokens
-  .filter( t => t.type != "newline")
-  .map( t => (`\n[${t.type}]\n${t.lexeme}\n`))
+  .reduce( (all, one) => {
+    let color = '#7FDBFF';
+    switch( one.type ) {
+      case "block":
+        color = "#fc0";
+        break;
+      case "arg":
+        color = "#FF851B";
+        break;
+      case "md":
+        color = " #39CCCC";
+        break;
+    }
+
+    all += `<span style="color: ${color}">${one.lexeme}</span>`
+
+    return all + " ";
+  }, ``)
 
 let readout = document.createElement("pre");
 let code = document.createElement("code");
-let content = document.createTextNode( output.join(' ') )
 
-code.appendChild( content )
+code.insertAdjacentHTML( "beforeend", output );
 readout.appendChild( code )
 
 document.body.appendChild( readout )
