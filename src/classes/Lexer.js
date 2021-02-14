@@ -1,3 +1,4 @@
+import dedent from "dedent";
 import Token from './Token'
 
 const isAlpha = c => c.match(/[A-Za-z_-]/g);
@@ -17,21 +18,6 @@ class Lexer {
     this.source = source;
   }
   
-  lookahead(offset = 1) {
-    const lookahead_p = (this.next_p - 1) + offset;
-    
-    // Guard against looking past file end
-    if (lookahead_p >= this.source.length) return "\0";
-    return this.source[lookahead_p]
-  }
-  
-  consume() {
-    const c = this.lookahead();
-    this.next_p += 1;
-    
-    return c;
-  }
-  
   startTokenization() {
     while( !this.sourceCompleted() ) {
       this.tokenize()
@@ -40,7 +26,6 @@ class Lexer {
   
   tokenize() {
     this.lexemeStart_p = this.next_p;
-    this.column += 1;
     
     const previous_t = this.tokens[ this.tokens.length - 1 ]
     let token = null;
@@ -82,7 +67,7 @@ class Lexer {
     
     // Otherwise we assume markdown
     else if ( (!previous_t || previous_t.type == 'newline' ) ) {
-      token = this.isMarkdownLine();
+      token = this.isMarkdown();
     }
    
     if( token ) {
@@ -124,7 +109,9 @@ class Lexer {
     return new Token(type, lexeme, null, this.currentLocation() )
   }
   
-  isMarkdownLine(){
+  isMarkdown(){
+    // Apparatus for detecting a block
+    // so we can end the markdown token
     let blockBuffer = "";
     const blockEncountered = () => blockBuffer.match(/^[ |\t]+\//g)
 
@@ -147,7 +134,8 @@ class Lexer {
     const literal = this.source.substring(this.lexemeStart_p, this.next_p);
     
     // Trim leading whitespace
-    const lexeme = literal //.replace(/^[\S\t]+/gm, "")
+    const lexeme = dedent(literal)
+
     const type = 'md';
     
     return new Token(type, lexeme, literal, this.currentLocation() )
@@ -160,6 +148,22 @@ class Lexer {
   }
   
   // Utility
+
+  lookahead(offset = 1) {
+    const lookahead_p = (this.next_p - 1) + offset;
+    
+    // Guard against looking past file end
+    if (lookahead_p >= this.source.length) return "\0";
+    return this.source[lookahead_p]
+  }
+  
+  consume() {
+    const c = this.lookahead();
+    this.column += 1
+    this.next_p += 1;
+    
+    return c;
+  }
   
   currentLocation() {
     return {

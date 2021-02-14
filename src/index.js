@@ -56,7 +56,7 @@ const output = lex.tokens
 
     all += `<span style="color: ${color}">${one.lexeme}</span>`
 
-    return all + " ";
+    return all;
   }, ``)
 
 let readout = document.createElement("pre");
