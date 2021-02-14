@@ -87,6 +87,13 @@ class Lexer {
    
     if( token ) {
       this.tokens.push( token )
+
+      // This is a hack until I find a better way to 
+      // parse the end of markdown 
+      if( token.type == "md" ){
+        // Manually add in newline
+        this.tokens.push( new Token('newline', "\n", null, this.currentLocation()))
+      }
     } else {
       console.error(`Unrecognized character: ${c}, at ${
         this.source.substring(this.lexemeStart_p, this.next_p + 10)
