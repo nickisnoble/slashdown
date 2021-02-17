@@ -37,6 +37,8 @@ const source = `
 
 const lex = new Lexer( source );
 const tokens = lex.tokens
+const pretty = JSON.stringify( tokens, null, 2 )
+const types = tokens
   .map( t => `[${t.type}] ${t.text == "\n" ? "\\n" : t.text }` )
 
 // Shitty syntax highlighting
@@ -69,7 +71,7 @@ const tokens = lex.tokens
 document.body.innerHTML = `
   <pre>
     <code>
-      ${tokens.join("\n")}
+      ${pretty}
     </code>
   </pre>
 `

@@ -9,17 +9,6 @@ class Lexer {
   _next = 0;
   _start = 0;
 
-  // Testers
-  _is = {
-    alpha: c => !!c.match(/[A-Za-z_\-]/),
-    digit: c => !!c.match(/[0-9]/),
-    alphaNumeric: c => !!c.match(/[0-9A-Za-z_\-]/),
-    comment: c => {
-      const s = c + this.lookahead(1);
-      return !!s.match(/\/\//);
-    }
-  }
-
   // Main bits
   
   constructor( source ) {
@@ -45,7 +34,7 @@ class Lexer {
       if( character == " " ) continue;
 
       // Skip through comments
-      if( this._is.comment( character ) ) {
+      if( this.isComment( character ) ) {
         this.comment();
         continue;
       }
@@ -91,7 +80,7 @@ class Lexer {
 
     while( this.lookahead() != "\n" && !this.isCompleted() ) {
       const c = this.advance();
-      if(!this._is.alphaNumeric(c)) break;
+      if(!this.isAlphaNumeric(c)) break;
       text += c;
     }
 
@@ -103,7 +92,7 @@ class Lexer {
 
     while( this.lookahead() != "\n" && !this.isCompleted() ) {
       const c = this.advance();
-      if(!this._is.alphaNumeric(c)) break;
+      if(!this.isAlphaNumeric(c)) break;
       text += c;
     }
 
@@ -154,19 +143,38 @@ class Lexer {
     return cursor;
   }
 
+  // Testers
+
   isCompleted() {
     return this._next >= this._eof;
   }
+
+  isAlpha(c) { 
+    return !!c.match(/[A-Za-z_\-]/) 
+  }
+
+  isDigit(c) { 
+    return !!c.match(/[0-9]/) 
+  }
+
+  isAlphaNumeric(c) { 
+    return this.isAlpha(c) || this.isDigit(c) 
+  }
+
+  isComment(c) { 
+    const s = c + this.lookahead(1);
+    return !!s.match(/\/\//);
+  }
+
 
   // Util
 
   getLocation() {
     return {
+      line: this._line,
       indent: this._indent,
       start: this._start,
       end: this._next - 1,
-      line: this._line,
-      column: this._column,
     }
   }
  
