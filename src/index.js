@@ -36,33 +36,40 @@ const source = `
 `
 
 const lex = new Lexer( source );
-lex.startTokenization();
+const tokens = lex.tokens
+  .map( t => `[${t.type}] ${t.text == "\n" ? "\\n" : t.text }` )
 
 // Shitty syntax highlighting
-const output = lex.tokens
-  .reduce( (all, one) => {
-    let color = '#7FDBFF';
-    switch( one.type ) {
-      case "block":
-        color = "#fc0";
-        break;
-      case "arg":
-        color = "#FF851B";
-        break;
-      case "md":
-        color = " #39CCCC";
-        break;
-    }
+// const output = lex.tokens
+//   .reduce( (all, one) => {
+//     let color = '#7FDBFF';
+//     switch( one.type ) {
+//       case "block":
+//         color = "#fc0";
+//         break;
+//       case "arg":
+//         color = "#FF851B";
+//         break;
+//       case "md":
+//         color = " #39CCCC";
+//         break;
+//     }
 
-    all += `<span style="color: ${color}">${one.lexeme}</span>`
+//     all += `<span style="color: ${color}">${one.lexeme}</span>`
 
-    return all;
-  }, ``)
+//     return all;
+//   }, ``)
 
-let readout = document.createElement("pre");
-let code = document.createElement("code");
+// let readout = document.createElement("pre");
+// let code = document.createElement("code");
 
-code.insertAdjacentHTML( "beforeend", output );
-readout.appendChild( code )
+// code.insertAdjacentHTML( "beforeend", output );
+// readout.appendChild( code )
 
-document.body.appendChild( readout )
+document.body.innerHTML = `
+  <pre>
+    <code>
+      ${tokens.join("\n")}
+    </code>
+  </pre>
+`

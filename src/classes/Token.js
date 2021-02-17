@@ -1,9 +1,16 @@
 class Token {
-  constructor (type, lexeme, literal, location) {
+  constructor (type, text, location) {
     this.type = type;
-    this.lexeme = lexeme;
-    this.literal = literal;
+    this.text = text;
     this.location = location;
+  }
+
+  hasChild( otherToken ) {
+    return this.location.indent < otherToken.location.indent;
+  }
+
+  isSibling( otherToken ) {
+    return this.location.indent == otherToken.location.indent;
   }
 }
 

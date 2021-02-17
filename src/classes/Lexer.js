@@ -1,177 +1,175 @@
-import dedent from "dedent";
 import Token from './Token'
-
-const isAlpha = c => c.match(/[A-Za-z_-]/g);
-const isDigit = c => c.match(/[0-9]/g);
-const isAlphaNumeric = c => isAlpha(c) || isDigit(c);
 
 class Lexer {
   tokens = [];
-  line = 0;
-  column = 0;
-  next_p = 0;
-  lexemeStart_p = 0;
-  
-  sourceCompleted = () => this.next_p >= this.source.length;
+
+  _line = 0;
+  _column = 0;
+  _indent = 0;
+  _next = 0;
+  _start = 0;
+
+  // Testers
+  _is = {
+    alpha: c => !!c.match(/[A-Za-z_\-]/),
+    digit: c => !!c.match(/[0-9]/),
+    alphaNumeric: c => !!c.match(/[0-9A-Za-z_\-]/),
+    comment: c => {
+      const s = c + this.lookahead(1);
+      return !!s.match(/\/\//);
+    }
+  }
+
+  // Main bits
   
   constructor( source ) {
     this.source = source;
+    this._eof   = source.length;
+
+    this.tokenize()
   }
-  
-  startTokenization() {
-    while( !this.sourceCompleted() ) {
-      this.tokenize()
-    }
-  }
-  
+
   tokenize() {
-    this.lexemeStart_p = this.next_p;
-    
-    const previous_t = this.tokens[ this.tokens.length - 1 ]
-    let token = null;
-    let c = this.consume();
-    
-    // Skip whitespace
-    if ( [' ', "\t"].includes(c) ) {
-      return; 
-    }
-    
-    // If it's the end of a line
-    if (c == "\n") {
-      this.tokens.push( new Token('newline', "\n", null, this.currentLocation()))
-      
-      this.line += 1;
-      this.column = 0; // reset column
-      return; 
-    }
-    
-    // If the current is /, and the next is /
-    // aka //
-    // it's a comment and we should ignore it
-    if ( c == "/" && c == this.lookahead()) {
-      this.ignoreComment();
-      return;
-    }
-    
-    // If it's / immediately followed by a letter,
-    // it's a block
-    if ( c == "/" && isAlpha( this.lookahead() ) ) {
-      token = this.isBlock();
-    } 
-    
-    // if the previous type is a block or an arg, and there hasn't been a newline, 
-    // it's likely another arg
-    else if ( ['block', 'arg'].includes(previous_t?.type) ) {
-      token = this.isArg();
-    }
-    
-    // Otherwise we assume markdown
-    else if ( (!previous_t || previous_t.type == 'newline' ) ) {
-      token = this.isMarkdown();
-    }
-   
-    if( token ) {
-      this.tokens.push( token )
+    while( !this.isCompleted() ) {
+      this._start = this._next; // we're about to advance
+      this._indent = this._column;
 
-      // This is a hack until I find a better way to 
-      // parse the end of markdown 
-      if( token.type == "md" ){
-        // Manually add in newline
-        this.tokens.push( new Token('newline', "\n", null, this.currentLocation()))
+      // Cursors
+      const character = this.advance();
+      const previous = this.tokens[this.tokens.length - 1];
+
+      // Empty token
+      let token;
+
+      // Skip through whitespace
+      if( character == " " ) continue;
+
+      // Skip through comments
+      if( this._is.comment( character ) ) {
+        this.comment();
+        continue;
       }
-    } else {
-      console.error(`Unrecognized character: ${c}, at ${
-        this.source.substring(this.lexemeStart_p, this.next_p + 10)
-      }`)
-    }
-  }
-  
-  // Types
-  isBlock() {
-    while( isAlphaNumeric( this.lookahead() ) ) {
-      this.consume()
-    }
-    
-    const block = this.source.substring(this.lexemeStart_p, this.next_p);
-    const type = 'block';
-    
-    return new Token(type, block, null, this.currentLocation() )
-  }
-  
-  isArg() {
-    while( isAlphaNumeric( this.lookahead() ) ) {
-      this.consume()
-    }
-    
-    const lexeme = this.source.substring(this.lexemeStart_p, this.next_p);
-    const type = 'arg';
-    
-    return new Token(type, lexeme, null, this.currentLocation() )
-  }
-  
-  isMarkdown(){
-    // Apparatus for detecting a block
-    // so we can end the markdown token
-    let blockBuffer = "";
-    const blockEncountered = () => blockBuffer.match(/^[ |\t]+\//g)
 
-    while( !this.sourceCompleted() ) {
-      blockBuffer += this.lookahead();
+      // Newlines
+      if( character == "\n" ) {
+        token = this.newline();
+        this._line++;
+        this._column = 0;
+      } 
 
-      if( blockEncountered() ) break;
+      // Commands
+      else if ( character == "/" ) {
+        token = this.command();
+      } 
 
-      // Count lines in Markdown too
-      if ( this.lookahead() == "\n" ) {
-        this.line += 1;
-        this.column = 0; // reset column
-        blockBuffer = "" // reset buffer
+      // Newline would have been picked up already
+      else if ( ["command", "arg"].includes( previous?.type ) ) {
+        token = this.arg();
+      } 
+
+      else {
+        token = this.content();
+      }
+
+      if( token ) {
+        this.tokens.push( token )  
+      } else {
+        console.error(`"${character}" not recognized`)
       }
       
-      this.consume(); 
-    }
-    
-    // Capture raw
-    const literal = this.source.substring(this.lexemeStart_p, this.next_p);
-    
-    // Trim leading whitespace
-    const lexeme = dedent(literal)
-
-    const type = 'md';
-    
-    return new Token(type, lexeme, literal, this.currentLocation() )
-  }
-  
-  ignoreComment(){
-    while( this.lookahead() != "\n" && !this.sourceCompleted() ) {
-      this.consume()     
     }
   }
-  
-  // Utility
 
-  lookahead(offset = 1) {
-    const lookahead_p = (this.next_p - 1) + offset;
-    
-    // Guard against looking past file end
-    if (lookahead_p >= this.source.length) return "\0";
-    return this.source[lookahead_p]
+  // Consumers
+
+  newline() {
+    return new Token('newline', "\n", this.getLocation())
   }
-  
-  consume() {
-    const c = this.lookahead();
-    this.column += 1
-    this.next_p += 1;
-    
-    return c;
+
+  command() {
+    let text = this.source[ this._start ];
+
+    while( this.lookahead() != "\n" && !this.isCompleted() ) {
+      const c = this.advance();
+      if(!this._is.alphaNumeric(c)) break;
+      text += c;
+    }
+
+    return new Token('command', text, this.getLocation())
   }
-  
-  currentLocation() {
+
+  arg() {
+    let text = this.source[ this._start ];
+
+    while( this.lookahead() != "\n" && !this.isCompleted() ) {
+      const c = this.advance();
+      if(!this._is.alphaNumeric(c)) break;
+      text += c;
+    }
+
+    return new Token('arg', text, this.getLocation())
+  }
+
+  content() {
+    let buffer = "";
+    const encounter = () => {
+      buffer += this.lookahead();
+      return !!buffer.match(/^[ |\t]*\//)
+    }
+    
+    let text = this.source[ this._start ];
+
+    while( !this.isCompleted() && !encounter() ) {
+      const c = this.advance();
+
+      // Reset buffer on newline
+      if( c == "\n" ) {
+        buffer = "";
+      }
+
+      text += c;
+    }
+
+    return new Token('content', text, this.getLocation())
+  }
+
+  comment() {
+    while( this.lookahead() != "\n" && !this.isCompleted() ) {
+      this.advance();
+    }
+  }
+
+
+  // Traversal
+
+  lookahead( amount = 1 ) {
+    const look = (this._next - 1) + amount;
+    return this.source[look] ?? "\0"
+  }
+
+  advance() {
+    const cursor = this.lookahead(1);
+    this._next++;
+    this._column++;
+    return cursor;
+  }
+
+  isCompleted() {
+    return this._next >= this._eof;
+  }
+
+  // Util
+
+  getLocation() {
     return {
-      line: this.line,
-      column: this.column,
-      length: this.next_p - this.lexemeStart_p
+      indent: this._indent,
+      start: this._start,
+      end: this._next - 1,
+      line: this._line,
+      column: this._column,
     }
   }
+ 
 }
 
 export default Lexer;
