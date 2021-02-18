@@ -1,16 +1,8 @@
 class Token {
-  constructor (type, text, location) {
+  constructor (type, value, location) {
     this.type = type;
-    this.text = text;
+    this.value = value;
     this.location = location;
-  }
-
-  hasChild( otherToken ) {
-    return this.location.indent < otherToken.location.indent;
-  }
-
-  isSibling( otherToken ) {
-    return this.location.indent == otherToken.location.indent;
   }
 }
 

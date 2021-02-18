@@ -13,8 +13,6 @@ class Lexer {
   
   constructor( source ) {
     this.source = source;
-    this._eof   = source.length;
-
     this.tokenize()
   }
 
@@ -42,8 +40,6 @@ class Lexer {
       // Newlines
       if( character == "\n" ) {
         token = this.newline();
-        this._line++;
-        this._column = 0;
       } 
 
       // Commands
@@ -72,6 +68,8 @@ class Lexer {
   // Consumers
 
   newline() {
+    this._line++;
+    this._column = 0;
     return new Token('newline', "\n", this.getLocation())
   }
 
@@ -113,6 +111,7 @@ class Lexer {
 
       // Reset buffer on newline
       if( c == "\n" ) {
+        this.newline();
         buffer = "";
       }
 
@@ -146,7 +145,7 @@ class Lexer {
   // Testers
 
   isCompleted() {
-    return this._next >= this._eof;
+    return this._next >= this.source.length;
   }
 
   isAlpha(c) { 

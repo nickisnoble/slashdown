@@ -1,5 +1,5 @@
 import Lexer from './classes/Lexer'
-
+import Parser from './classes/Parser'
 
 // DEBUG
 const source = `
@@ -36,42 +36,15 @@ const source = `
 `
 
 const lex = new Lexer( source );
-const tokens = lex.tokens
-const pretty = JSON.stringify( tokens, null, 2 )
-const types = tokens
-  .map( t => `[${t.type}] ${t.text == "\n" ? "\\n" : t.text }` )
-
-// Shitty syntax highlighting
-// const output = lex.tokens
-//   .reduce( (all, one) => {
-//     let color = '#7FDBFF';
-//     switch( one.type ) {
-//       case "block":
-//         color = "#fc0";
-//         break;
-//       case "arg":
-//         color = "#FF851B";
-//         break;
-//       case "md":
-//         color = " #39CCCC";
-//         break;
-//     }
-
-//     all += `<span style="color: ${color}">${one.lexeme}</span>`
-
-//     return all;
-//   }, ``)
-
-// let readout = document.createElement("pre");
-// let code = document.createElement("code");
-
-// code.insertAdjacentHTML( "beforeend", output );
-// readout.appendChild( code )
+const parser = new Parser( lex.tokens );
+const pretty = JSON.stringify( parser.ast, null, 2 )
+// const types = tokens
+  // .map( t => `[${t.type}] ${t.text == "\n" ? "\\n" : t.text }` )
 
 document.body.innerHTML = `
   <pre>
     <code>
-      ${pretty}
+${pretty}
     </code>
   </pre>
 `
