@@ -38,6 +38,7 @@ class Parser {
       node.children = children;
     }
 
+    delete node.location;
     return node;
   }
 
@@ -47,21 +48,20 @@ class Parser {
     const node = this.current();
 
     // Handle args
-    if( this.lookahead().type == "arg" ){
-      node.args = []
-    }
-
+    let args = []
     while( this.lookahead().type == "arg" ) {
       const arg = this.advance();
-
-      node.args.push( arg );
+      args.push( arg.value )
     }
+    if( args.length ) node.args = args;
 
     return node;
   }
 
   content() {
-    return this.current();
+    const node = this.current();
+    delete node.location;
+    return node;
   }
 
   // Traversal
