@@ -1,3 +1,4 @@
+import dedent from 'dedent'
 import Token from './Token'
 
 class Lexer {
@@ -118,7 +119,7 @@ class Lexer {
       text += c;
     }
 
-    return new Token('content', text, this.getLocation())
+    return new Token('content', dedent( text ), this.getLocation())
   }
 
   comment() {
