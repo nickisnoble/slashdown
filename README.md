@@ -1,17 +1,17 @@
-# LayoutDown
+# SlashDown
 
-Layout down is aimed to be similar to markdown, but allowing one to represent hierarchy easily.
+SlashDown is aimed to be similar to markdown, but allowing one to represent hierarchy easily.
 
 ## Target
 
-LayoutDown isn't anywhere near ready, but the initial target is as follows:
+SlashDown isn't anywhere near ready, but the initial target is as follows:
 
 ### Input
 ```
 /hero marketing
     
   # This is an example
-  LayoutDown uses markup to create layout.
+  SlashDown uses markup to create structure.
 
 // This is a comment
 /columns 3 equal
@@ -21,7 +21,7 @@ LayoutDown isn't anywhere near ready, but the initial target is as follows:
     ### Dead simple
     - Portable Markdown + layout
     - Realtime preview
-    - drop in, batteries not needed
+    - Drop in, batteries not needed
 
 
   /column B
@@ -53,7 +53,7 @@ LayoutDown isn't anywhere near ready, but the initial target is as follows:
     <ul>
       <li>Portable Markdown + layout</li>
       <li>Realtime preview</li>
-      <li>drop in, batteries not needed</li>
+      <li>Drop in, batteries not needed</li>
     </ul>
   </div>
   <div class="column column-B">
