@@ -83,7 +83,7 @@ class Lexer {
       text += c;
     }
 
-    return new Token('command', text, this.getLocation())
+    return new Token('command', text.replace("/","") , this.getLocation())
   }
 
   arg() {
