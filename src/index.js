@@ -1,5 +1,6 @@
 import Lexer from './Lexer'
 import Parser from './Parser'
+import Renderer from './Renderer'
 
 // DEBUG
 const source = `
@@ -37,14 +38,14 @@ const source = `
 
 const lex = new Lexer( source );
 const parser = new Parser( lex.tokens );
-const pretty = JSON.stringify( parser.ast, null, 2 )
+const renderer = new Renderer( parser.ast );
 // const types = tokens
   // .map( t => `[${t.type}] ${t.text == "\n" ? "\\n" : t.text }` )
 
 document.body.innerHTML = `
   <pre>
     <code>
-${pretty}
+      ${renderer.markup}
     </code>
   </pre>
 `

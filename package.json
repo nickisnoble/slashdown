@@ -15,7 +15,8 @@
     "lint": "prettier --check \"src/**/*.js\""
   },
   "dependencies": {
-    "dedent": "^0.7.0"
+    "dedent": "^0.7.0",
+    "marked": "^2.0.0"
   },
   "devDependencies": {
     "prettier": "^2.0.5",
