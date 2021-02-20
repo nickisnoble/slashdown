@@ -20,8 +20,6 @@ class Parser {
     const cursor = this.advance(),
           next = this.lookahead();
 
-          console.log(depth, cursor.type)
-
     if( !next ) return;
 
     let indent = depth || cursor.location.indent;
