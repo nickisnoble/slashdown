@@ -6,46 +6,55 @@ import Renderer from './Renderer'
 const source = `
   /hero is-sticky
     
-    # This is proseCMS
-    It's a dead simple content management system / markdown flavor.
+    # This is slashdown
+    For when MDX is too much, but Markdown is too little.
 
   // This is a comment
-  /columns 3 equal
+  /columns three equal
 
     /column A
 
       ### Dead simple
-      - Portable Markdown + layout
-      - Realtime preview
-      - drop in, batteries not needed
-
+      - type a slash, get a div
+      - drop in, batteries not really needed
 
     /column B
 
       ### Works how you want
-      - As a headless CMS
-      - With a database
-
+      - Portable
+      - Framework agnostic
 
     /column C
 
       ### Hackable AF
-      - Add your own functions
-      - Style the editor
+      - Parse content however you wany
+      - Add your own block rendering functions
 
-  /footer
+/footer
+
+  © 2021 Miniware;
+
+/
 `
 
-const lex = new Lexer( source );
-const parser = new Parser( lex.tokens );
-const renderer = new Renderer( parser.ast );
-// const types = tokens
-  // .map( t => `[${t.type}] ${t.text == "\n" ? "\\n" : t.text }` )
+const lexed = new Lexer( source );
+const parsed = new Parser( lexed.tokens );
+const rendered = new Renderer( parsed.ast );
 
-document.body.innerHTML = `
-  <pre>
+const app = document.getElementById('app');
+
+app.innerHTML = `
+  <pre class="lexed">
     <code>
-      ${renderer.markup}
+${lexed.tokens.map( t => `[${t.type}]`).join("\n")}
     </code>
   </pre>
+  <pre class="parsed">
+    <code>
+${JSON.stringify(parsed.ast, null, 2)}
+    </code>
+  </pre>
+  <div class="preview">
+${rendered.markup}
+  </div>
 `

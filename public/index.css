@@ -1,5 +1,57 @@
 html {
   font-family: sans-serif;
-  background: #001f3f ;
+  background: #001f3f;
   color: #7FDBFF;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+}
+
+pre {
+  margin: 0;
+  
+  white-space: break-spaces;
+}
+
+#app {
+  display: flex;
+  overflow: hidden;
+  height: 100vh;
+}
+
+.preview, 
+.parsed,
+.lexed {
+  padding: 1em;
+  border-right: 2px solid #00101f;
+  overflow: auto;
+  scrollbar-width: none;
+}
+
+.preview {
+  flex: 5;
+}
+
+.preview * {
+  box-shadow: 0 0 0 1px rgba(255,255,255,0.1);
+}
+
+.parsed {
+  flex: 3;  
+}
+
+.lexed {
+  flex: 1;
+  background: #00101f;
+}
+
+.columns {
+  --min: 15ch;
+  --gap: 1rem;
+
+  display: grid;
+  grid-gap: var(--gap);
+  grid-template-columns: repeat(auto-fit, minmax(var(--min), 1fr));
 }
