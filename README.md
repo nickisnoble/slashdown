@@ -1,10 +1,23 @@
 # SlashDown
 
-SlashDown is aimed to be similar to markdown, but allowing one to represent hierarchy easily.
+For when MDX is too much, but Markdown is too little.
+
+## Basic Usage
+
+`$ npm install slashdown`
+
+```js
+import slashdown from 'slashdown';
+
+// Will return HTML
+slashdown(content)
+```
+
+**Note:** Slashdown doesn't do any sanitization!
 
 ## Target
 
-SlashDown isn't anywhere near ready, but the initial target is as follows:
+**SlashDown isn't anywhere near ready**, but the initial target is as follows:
 
 ### Input
 ```
@@ -46,7 +59,7 @@ SlashDown isn't anywhere near ready, but the initial target is as follows:
   <p>LayoutDown uses markup to create layout.</p>
 </div>
 
-<!-- When a matching function is supplied, args can be handled arbitrarily -->
+<!-- Eventually, when a matching function is supplied, args can be handled arbitrarily -->
 <div class="columns grid" data-columns="3">
   <div class="column column-A">
     <h3>Dead simple</h3>
