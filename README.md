@@ -81,9 +81,8 @@ slashdown(content)
     </ul>
   </div>
 </div>
-<div class="footer">
+<footer>
   <p>© 2021 Miniware;</p>
-</div>
-<div class=" undefined"></div>
+</footer>
   
 ```
