@@ -23,8 +23,8 @@ slashdown(content)
 ```
 /hero is-sticky
     
-    # This is slashdown
-    For when MDX is too much, but Markdown is too little.
+  # This is slashdown
+  For when MDX is too much, but Markdown is too little.
 
   // This is a comment
   /columns three equal
