@@ -21,67 +21,69 @@ slashdown(content)
 
 ### Input
 ```
-/hero marketing
+/hero is-sticky
     
-  # This is an example
-  SlashDown uses markup to create structure.
+    # This is slashdown
+    For when MDX is too much, but Markdown is too little.
 
-// This is a comment
-/columns 3 equal
+  // This is a comment
+  /columns three equal
 
-  /column A
+    /column A
 
-    ### Dead simple
-    - Portable Markdown + layout
-    - Realtime preview
-    - Drop in, batteries not needed
+      ### Dead simple
+      - type a slash, get a div
+      - drop in, batteries not really needed
 
+    /column B
 
-  /column B
+      ### Works how you want
+      - Portable
+      - Framework agnostic
 
-    ### Works how you want
-    - As a headless CMS
-    - With a database
+    /column C
 
+      ### Hackable AF
+      - Parse content however you wany
+      - Add your own block rendering functions
 
-  /column C
+/footer
 
-    ### Hackable AF
-    - Add your own functions
-    - Style the editor
+  © 2021 Miniware;
 ```
 
 ### Output
 ```html
-<!-- By default, args just become classes -->
-<div class="hero marketing">
-  <h1>This is an example</h1>
-  <p>LayoutDown uses markup to create layout.</p>
+<div class="hero is-sticky">
+  <h1 id="this-is-slashdown">This is slashdown</h1>
+  <p>For when MDX is too much, but Markdown is too little.</p>
 </div>
-
-<!-- Eventually, when a matching function is supplied, args can be handled arbitrarily -->
-<div class="columns grid" data-columns="3">
-  <div class="column column-A">
-    <h3>Dead simple</h3>
+<div class="columns three equal">
+  <div class="column A">
+    <h3 id="dead-simple">Dead simple</h3>
     <ul>
-      <li>Portable Markdown + layout</li>
-      <li>Realtime preview</li>
-      <li>Drop in, batteries not needed</li>
+      <li>type a slash, get a div</li>
+      <li>drop in, batteries not really needed</li>
     </ul>
   </div>
-  <div class="column column-B">
-    <h3>Works how you want</h3>
+  <div class="column B">
+    <h3 id="works-how-you-want">Works how you want</h3>
     <ul>
-      <li>As a headless CMS</li>
-      <li>With a database</li>
+      <li>Portable</li>
+      <li>Framework agnostic</li>
     </ul>
   </div>
-  <div class="column column-C">
-    <h3>Hackable AF</h3>
+  <div class="column C">
+    <h3 id="hackable-af">Hackable AF</h3>
     <ul>
-      <li>Add your own functions</li>
-      <li>Style the editor</li>
+      <li>Parse content however you wany</li>
+      <li>Add your own block rendering functions</li>
     </ul>
   </div>
 </div>
+<div class="footer">
+  <p>© 2021 Miniware;</p>
+</div>
+<div class=" undefined"></div>
+  
 ```
