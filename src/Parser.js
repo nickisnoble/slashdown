@@ -10,7 +10,10 @@ class Parser {
   parse() {
     while(this.hasRemainingTokens()) {
       const node = this.parseRecursively();
-      this.ast.push(node)
+
+      if( node ) {
+        this.ast.push(node)
+      }
     }
   }
 
@@ -21,14 +24,19 @@ class Parser {
           next = this.lookahead();
 
     let indent = depth || cursor.location.indent;
-    const node = cursor.type == "newline" ? cursor : this[cursor.type]();
+    const node = cursor.type == "newline" ? null : this[cursor.type]();
 
-    if( node.type == "command" ) {
+    if( !node ) return;
+
+    if( node?.type == "command" ) {
       indent = node.location.indent
       let children = []
 
       while( this.lookahead()?.location.indent > indent || this.lookahead()?.type == "newline" ) {
-        children.push( this.parseRecursively( indent ) )
+        const child = this.parseRecursively( indent );
+        if( child ) {
+          children.push( child )
+        }
       }
 
       node.children = children;
