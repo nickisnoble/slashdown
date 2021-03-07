@@ -25,7 +25,7 @@ class Parser {
     let indent = depth || cursor.location.indent;
     const node = cursor.type == "newline" ? cursor : this[cursor.type]();
 
-    if( node.type == "command" && next.location.indent > indent) {
+    if( node.type == "command" ) {
       indent = node.location.indent
       let children = []
 
