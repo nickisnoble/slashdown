@@ -20,8 +20,6 @@ class Parser {
     const cursor = this.advance(),
           next = this.lookahead();
 
-    if( !next ) return;
-
     let indent = depth || cursor.location.indent;
     const node = cursor.type == "newline" ? cursor : this[cursor.type]();
 
