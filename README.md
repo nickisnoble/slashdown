@@ -9,8 +9,7 @@ For when MDX is too much, but Markdown is too little.
 ```js
 import slashdown from 'slashdown';
 
-// Will return HTML
-slashdown(content)
+const markup = slashdown(content)
 ```
 
 **Note:** Slashdown doesn't do any sanitization!
