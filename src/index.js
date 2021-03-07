@@ -3,38 +3,34 @@ import Parser from './Parser'
 import Renderer from './Renderer'
 
 // DEBUG
-const source = `
-  /hero is-sticky
-    
-    # This is slashdown
-    For when MDX is too much, but Markdown is too little.
+const source = `  
+# This is slashdown
+For when MDX is too much, but Markdown is too little.
 
-  // This is a comment
-  /columns three equal
+// This is a comment
+/columns three equal
 
-    /column A
+  /column A
 
-      ### Dead simple
-      - type a slash, get a div
-      - drop in, batteries not really needed
+    ### Dead simple
+    - type a slash, get a div
+    - drop in, batteries not really needed
 
-    /column B
+  /column B
 
-      ### Works how you want
-      - Portable
-      - Framework agnostic
+    ### Works how you want
+    - Portable
+    - Framework agnostic
 
-    /column C
+  /column C
 
-      ### Hackable AF
-      - Parse content however you wany
-      - Add your own block rendering functions
+    ### Hackable AF
+    - Parse content however you wany
+    - Add your own block rendering functions
 
 /footer
 
   © 2021 Miniware;
-
-/
 `
 
 const lexed = new Lexer( source );
