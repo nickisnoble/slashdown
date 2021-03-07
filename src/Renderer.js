@@ -13,7 +13,9 @@ class Renderer {
       if ( node ) {
 
         if ( node.type === "command" ) {
-          rendered += `<div class="${node.value} ${node.args?.join(' ')}">`
+          const classes = node.args?.join(' ') ?? "";
+          console.log( classes )
+          rendered += `<div class="${node.value}${ classes ? " " + classes : "" }">`
 
           if (node.children?.length) {
             rendered += this.build( node.children ) 
