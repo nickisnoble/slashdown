@@ -35,8 +35,8 @@ For when MDX is too much, but Markdown is too little.
 `
 
 const lexed = new Lexer( source );
-const parsed = "not yet" // new Parser( lexed.tokens );
-const rendered = "not yet" // new Renderer( parsed.ast );
+const parsed = new Parser( lexed.tokens );
+const rendered = new Renderer( parsed.ast );
 
 const app = document.getElementById('app');
 
@@ -49,10 +49,7 @@ ${lexed.tokens.map( t => `[${t.type}]`).join("\n")}
   <pre class="parsed">
     <code>
 ${
-      // JSON.stringify(parsed.ast, null, 2)
-      lexed.tokens.map( t => `${
-        JSON.stringify(t, null, 2)
-      }`).join("\n")
+      JSON.stringify(parsed.ast, null, 2)
 }
     </code>
   </pre>

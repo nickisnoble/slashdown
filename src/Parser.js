@@ -23,48 +23,48 @@ class Parser {
     const cursor = this.advance(),
           next = this.lookahead();
 
-    let indent = depth || cursor.location.indent;
-    const node = cursor.type == "newline" ? null : this[cursor.type]();
+    let indent = depth || cursor.depth;
+    const node = this[cursor.type]();
 
     if( !node ) return;
 
-    if( node?.type == "command" ) {
-      indent = node.location.indent
-      let children = []
+    if( node.type == "block" ) {
+      indent = node.depth;
+      let children = [];
 
-      while( this.lookahead()?.location.indent > indent || this.lookahead()?.type == "newline" ) {
+      while( this.lookahead()?.depth > indent ) {
         const child = this.parseRecursively( indent );
         if( child ) {
-          children.push( child )
+          children.push( child );
         }
       }
 
       node.children = children;
     }
 
-    delete node.location;
+    delete node.depth;
     return node;
   }
 
   // Parsers
 
-  command() {
+  block() {
     const node = this.current();
 
     // Handle args
     let args = []
-    while( this.lookahead().type == "arg" ) {
+    while( this.lookahead().type == "argument" ) {
       const arg = this.advance();
       args.push( arg.value )
     }
-    if( args.length ) node.args = args;
+    if( args.length ) node.arguments = args;
 
     return node;
   }
 
   content() {
     const node = this.current();
-    delete node.location;
+    delete node.depth;
     return node;
   }
 
@@ -73,10 +73,6 @@ class Parser {
   lookahead( amount = 1 ) {
     const look = (this._next - 1) + amount;
     return this.tokens[look];
-  }
-
-  lookbehind() {
-    return this.lookahead(-1);
   }
 
   current() {
