@@ -1,183 +1,107 @@
 import dedent from 'dedent'
-import Token from './Token'
 
 class Lexer {
   tokens = [];
-
-  _line = 0;
-  _column = 0;
-  _indent = 0;
-  _next = 0;
-  _start = 0;
-
-  // Main bits
   
   constructor( source ) {
-    this.source = source;
+    this.lines = source.split("\n");
     this.tokenize()
   }
 
   tokenize() {
-    while( !this.isCompleted() ) {
-      this._start = this._next; // we're about to advance
-      this._indent = this._column;
+    // Read
+    for( let line of this.lines ) {
+      const lastToken = this.previous()
 
-      // Cursors
-      const character = this.advance();
-      const previous = this.tokens[this.tokens.length - 1];
+      // Find out what kind and how deep
+      const { depth, type } = this.classify( line );
+      if( type == "comment" ) continue;
 
-      // Empty token
-      let token;
+      const token = {
+        type,
+        depth,
+        value: line
+      }
 
-      // Skip through whitespace
-      if( character == " " ) continue;
+      // Concatenate consecutive content lines
+      if ( 
+          token.type == "content"
+          && lastToken?.type == "content" 
+          && token.depth >= lastToken.depth
+        ) {
 
-      // Skip through comments
-      if( this.isComment( character ) ) {
-        this.comment();
+        // Join by newline
+        lastToken.value += "\n" + line;
+
+        // Next loop;
         continue;
       }
 
-      // Newlines
-      if( character == "\n" ) {
-        token = this.newline();
-      } 
+      if (token.type == "block") {
+        // Take the line
+        const signature = line.split(' ')
+                              .filter( c => c );
+        
+        // Push the block itself
+        this.tokens.push({
+          type: "block",
+          value: signature.shift().replace("/", ""), // takes first item
+          depth
+        });
 
-      // Commands
-      else if ( character == "/" ) {
-        token = this.command();
-      } 
+        signature.forEach( arg => this.tokens.push({
+          type: "argument",
+          value: arg, // takes first item
+          depth
+        }));
 
-      // Newline would have been picked up already
-      else if ( ["command", "arg"].includes( previous?.type ) ) {
-        token = this.arg();
-      } 
-
-      else {
-        token = this.content();
+        continue;
       }
 
-      if( token ) {
-        this.tokens.push( token )  
-      } else {
-        console.error(`"${character}" not recognized`)
-      }
-      
-    }
-  }
-
-  // Consumers
-
-  newline() {
-    this._line++;
-    this._column = 0;
-    return new Token('newline', "\n", this.getLocation())
-  }
-
-  command() {
-    let text = this.source[ this._start ];
-
-    while( this.lookahead() != "\n" && !this.isCompleted() ) {
-      const c = this.advance();
-      if(!this.isAlphaNumeric(c)) break;
-      text += c;
+      // If we've got this far,
+      // push whatever we've got to the list
+      this.tokens.push( token );
     }
 
-    return new Token('command', text.replace("/","") , this.getLocation())
+    // Clean
+    this.tokens = this.tokens
+      .filter( t => t.value )
+      .map( t => {
+        if( t.type == "content" ) {
+          t.value = dedent( t.value );
+        }
+
+        return t;
+      })
   }
 
-  arg() {
-    let text = this.source[ this._start ];
+  classify( line ) {
+        // get number of leading spaces
+    let depth = line.match(/^[ ]*/)[0].length,
 
-    while( this.lookahead() != "\n" && !this.isCompleted() ) {
-      const c = this.advance();
-      if(!this.isAlphaNumeric(c)) break;
-      text += c;
-    }
+        // check if *all* spaces
+        empty = line.match(/^[ ]*$/),
 
-    return new Token('arg', text, this.getLocation())
-  }
+        // if it starts with /
+        type  = line.match(/^[ ]*\//) ? 
+          // ...then check if it starts with //
+          line.match(/^[ ]*\/\//) ?
+            // ...in which case:
+            "comment"
+            // otherwise...
+            : "block" 
+          // else...
+          : "content";
 
-  content() {
-    let buffer = "";
-    const encounter = () => {
-      buffer += this.lookahead();
-      return !!buffer.match(/^[ |\t]*\//)
-    }
-    
-    let text = this.source[ this._start ];
-
-    while( !this.isCompleted() && !encounter() ) {
-      const c = this.advance();
-
-      // Reset buffer on newline
-      if( c == "\n" ) {
-        this.newline();
-        buffer = "";
-      }
-
-      text += c;
-    }
-
-    return new Token('content', dedent( text ), this.getLocation())
-  }
-
-  comment() {
-    while( this.lookahead() != "\n" && !this.isCompleted() ) {
-      this.advance();
-    }
-  }
-
-
-  // Traversal
-
-  lookahead( amount = 1 ) {
-    const look = (this._next - 1) + amount;
-    return this.source[look] ?? "\0"
-  }
-
-  advance() {
-    const cursor = this.lookahead(1);
-    this._next++;
-    this._column++;
-    return cursor;
-  }
-
-  // Testers
-
-  isCompleted() {
-    return this._next >= this.source.length;
-  }
-
-  isAlpha(c) { 
-    return !!c.match(/[A-Za-z_\-]/) 
-  }
-
-  isDigit(c) { 
-    return !!c.match(/[0-9]/) 
-  }
-
-  isAlphaNumeric(c) { 
-    return this.isAlpha(c) || this.isDigit(c) 
-  }
-
-  isComment(c) { 
-    const s = c + this.lookahead(1);
-    return !!s.match(/\/\//);
-  }
-
-
-  // Util
-
-  getLocation() {
     return {
-      line: this._line,
-      indent: this._indent,
-      start: this._start,
-      end: this._next - 1,
+      depth: empty ? 0 : depth,
+      type
     }
   }
- 
+
+  previous() {
+    return this.tokens[ this.tokens.length - 1 ]
+  }
 }
 
 export default Lexer;
