@@ -42,7 +42,7 @@ class Parser {
       node.children = children;
     }
 
-    delete node.depth;
+    // delete node.depth;
     return node;
   }
 
@@ -64,7 +64,7 @@ class Parser {
 
   content() {
     const node = this.current();
-    delete node.depth;
+    // delete node.depth;
     return node;
   }
 

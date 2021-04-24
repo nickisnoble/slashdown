@@ -12,9 +12,9 @@ class Renderer {
     tree.forEach( node => {
       if ( node ) {
 
-        if ( node.type === "command" ) {
-          const classes = node.args?.join(' ') ?? "";
-          console.log( classes )
+        if ( node.type === "block" ) {
+          const classes = node.arguments?.join(' ') ?? "";
+          // console.log( classes )
           rendered += `<div class="${node.value}${ classes ? " " + classes : "" }">`
 
           if (node.children?.length) {

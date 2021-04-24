@@ -2,7 +2,8 @@ import Lexer from './Lexer'
 import Parser from './Parser'
 import Renderer from './Renderer'
 
-const source = `  
+const source = `
+
 # This is slashdown
 For when MDX is too much, but Markdown is too little.
 
@@ -19,7 +20,9 @@ For when MDX is too much, but Markdown is too little.
 
     ### Works how you want
     - Portable
-    - Framework agnostic
+      - Framework agnostic  
+      - Just copy / paste
+    - Other thing
 
   /column C
 
@@ -30,8 +33,6 @@ For when MDX is too much, but Markdown is too little.
 /footer
 
   © 2021 Miniware;
-
-  test.
 `
 
 const lexed = new Lexer( source );
@@ -43,7 +44,11 @@ const app = document.getElementById('app');
 app.innerHTML = `
   <pre class="lexed">
     <code>
-${lexed.tokens.map( t => `[${t.type}]`).join("\n")}
+${lexed.tokens
+    .filter( t => t.type == "content" )
+    .map( t => `${t.depth}[${t.type}]`).join("\n")
+}
+${lexed.tokens.length}
     </code>
   </pre>
   <pre class="parsed">
