@@ -15,6 +15,8 @@ class Lexer {
 
       // Find out what kind and how deep
       const { depth, type } = this.classify( line );
+       console.log(`${depth} \n\n`)
+
       if( type == "comment" ) continue;
 
       const token = {
@@ -24,11 +26,7 @@ class Lexer {
       }
 
       // Concatenate consecutive content lines
-      if ( 
-          token.type == "content"
-          && lastToken?.type == "content" 
-          && token.depth >= lastToken.depth
-        ) {
+      if ( token.type == "content" && lastToken?.type == "content" ) {
 
         // Join by newline
         lastToken.value += "\n" + line;
@@ -37,21 +35,26 @@ class Lexer {
         continue;
       }
 
+      // Skip blank lines that are not inside content
+      if ( !!line.match(/^[ ]*$/) ) {
+        continue;
+      }
+
       if (token.type == "block") {
         // Take the line
-        const signature = line.split(' ')
+        const words = line.split(' ')
                               .filter( c => c );
         
         // Push the block itself
         this.tokens.push({
           type: "block",
-          value: signature.shift().replace("/", ""), // takes first item
+          value: words.shift().replace("/", ""), // removes first item
           depth
         });
 
-        signature.forEach( arg => this.tokens.push({
+        words.forEach( arg => this.tokens.push({
           type: "argument",
-          value: arg, // takes first item
+          value: arg,
           depth
         }));
 
@@ -76,14 +79,11 @@ class Lexer {
   }
 
   classify( line ) {
-        // get number of leading spaces
-    let depth = line.match(/^[ ]*/)[0].length,
-
-        // check if *all* spaces
-        empty = line.match(/^[ ]*$/),
+    // get number of leading spaces
+    let depth = line.match(/^[^\S\r\n]*/)[0].length,
 
         // if it starts with /
-        type  = line.match(/^[ ]*\//) ? 
+        type = line.match(/^[ ]*\//) ? 
           // ...then check if it starts with //
           line.match(/^[ ]*\/\//) ?
             // ...in which case:
@@ -92,9 +92,9 @@ class Lexer {
             : "block" 
           // else...
           : "content";
-
+    console.log(depth)
     return {
-      depth: empty ? 0 : depth,
+      depth,
       type
     }
   }
