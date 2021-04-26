@@ -1,4 +1,4 @@
-import Lexer from './Lexer'
+import tokenize from './tokenizer'
 import Parser from './Parser'
 import Renderer from './Renderer'
 
@@ -35,8 +35,9 @@ For when MDX is too much, but Markdown is too little.
   © 2021 Miniware;
 `
 
-const lexed = new Lexer( source );
-const parsed = new Parser( lexed.tokens );
+const tokens = tokenize( source );
+
+const parsed = new Parser( tokens );
 const rendered = new Renderer( parsed.ast );
 
 const app = document.getElementById('app');
@@ -44,11 +45,11 @@ const app = document.getElementById('app');
 app.innerHTML = `
   <pre class="lexed">
     <code>
-${lexed.tokens
+${tokens
     .filter( t => t.type == "content" )
     .map( t => `${t.depth}[${t.type}]`).join("\n")
 }
-${lexed.tokens.length}
+${tokens.length}
     </code>
   </pre>
   <pre class="parsed">
