@@ -1,5 +1,5 @@
 import tokenize from './tokenizer'
-import Parser from './Parser'
+import parse from './parser'
 import Renderer from './Renderer'
 
 const source = `
@@ -36,9 +36,8 @@ For when MDX is too much, but Markdown is too little.
 `
 
 const tokens = tokenize( source );
-
-const parsed = new Parser( tokens );
-const rendered = new Renderer( parsed.ast );
+const parsed = parse( tokens );
+const rendered = new Renderer( parsed );
 
 const app = document.getElementById('app');
 
@@ -55,11 +54,14 @@ ${tokens.length}
   <pre class="parsed">
     <code>
 ${
-      JSON.stringify(parsed.ast, null, 2)
+      JSON.stringify(parsed, null, 2)
 }
     </code>
   </pre>
   <div class="preview">
-${rendered.markup}
+${
+  rendered.markup
+}
+
   </div>
 `

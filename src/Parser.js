@@ -1,30 +1,27 @@
-class Parser {
-  ast = []
-  _next = 0;
+export default function toSyntaxTree( tokens ) {
+  let ast = [],
+      next = 0;
 
-  constructor( tokens ) {
-    this.tokens = tokens;
-    this.parse();
-  }
 
-  parse() {
-    while(this.hasRemainingTokens()) {
-      const node = this.parseRecursively();
+  while( hasRemainingTokens() ) {
+    const node = traverse();
 
-      if( node ) {
-        this.ast.push(node)
-      }
+    if( node ) {
+      ast.push(node)
     }
   }
 
-  parseRecursively( depth = 0 ){
-    if( !this.hasRemainingTokens() ) return;
+  return ast;
 
-    const cursor = this.advance(),
-          next = this.lookahead();
 
-    let indent = depth || cursor.depth;
-    const node = this[cursor.type]();
+  function traverse( scope = 0 ) {
+    if( !hasRemainingTokens() ) return;
+
+    const { type, depth } = advance(),
+          next = lookahead();
+
+    let indent = scope || depth;
+    const node = parse( type );
 
     if( !node ) return;
 
@@ -32,8 +29,8 @@ class Parser {
       indent = node.depth;
       let children = [];
 
-      while( this.lookahead()?.depth > indent ) {
-        const child = this.parseRecursively( indent );
+      while( lookahead()?.depth > indent ) {
+        const child = traverse( indent );
         if( child ) {
           children.push( child );
         }
@@ -48,46 +45,46 @@ class Parser {
 
   // Parsers
 
-  block() {
-    const node = this.current();
+  function parse(type) {
+    const node = current();
 
-    // Handle args
-    let args = []
-    while( this.lookahead().type == "argument" ) {
-      const arg = this.advance();
-      args.push( arg.value )
+    switch( type ) {
+      case "block":
+        // Handle args
+        let args = []
+        while( lookahead().type == "argument" ) {
+          const arg = advance();
+          args.push( arg.value )
+        }
+        if( args.length ) node.arguments = args;
+
+        return node;
+        break;
+
+      // Includes "content"
+      default:
+        return node;
     }
-    if( args.length ) node.arguments = args;
-
-    return node;
-  }
-
-  content() {
-    const node = this.current();
-    // delete node.depth;
-    return node;
   }
 
   // Traversal
 
-  lookahead( amount = 1 ) {
-    const look = (this._next - 1) + amount;
-    return this.tokens[look];
+  function lookahead( amount = 1 ) {
+    const look = (next - 1) + amount;
+    return tokens[look];
   }
 
-  current() {
-    return this.lookahead(0);
+  function current() {
+    return lookahead(0);
   }
 
-  advance() {
-    const cursor = this.lookahead(1);
-    this._next++;
+  function advance() {
+    const cursor = lookahead(1);
+    next++;
     return cursor;
   }
 
-  hasRemainingTokens() {
-    return this._next < this.tokens.length;
+  function hasRemainingTokens() {
+    return next < tokens.length;
   }
 }
-
-export default Parser
