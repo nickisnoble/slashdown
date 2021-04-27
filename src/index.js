@@ -1,6 +1,6 @@
-import tokenize from './tokenizer'
+import lexer from './lexer'
 import parse from './parser'
-import Renderer from './Renderer'
+import render from './renderer'
 
 const source = `
 
@@ -35,9 +35,9 @@ For when MDX is too much, but Markdown is too little.
   © 2021 Miniware;
 `
 
-const tokens = tokenize( source );
+const tokens = lexer( source );
 const parsed = parse( tokens );
-const rendered = new Renderer( parsed );
+const rendered = render( parsed );
 
 const app = document.getElementById('app');
 
@@ -60,7 +60,7 @@ ${
   </pre>
   <div class="preview">
 ${
-  rendered.markup
+  rendered
 }
 
   </div>
