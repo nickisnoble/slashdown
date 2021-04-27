@@ -1,11 +1,11 @@
-import Lexer from './src/Lexer'
-import Parser from './src/Parser'
-import Renderer from './src/Renderer'
+import lex  from './src/lexer'
+import parse from './src/parser'
+import render from './src/renderer'
 
-export default function slashdown( raw ) {
-  const lexed = new Lexer( raw );
-  const parsed = new Parser( lexed.tokens );
-  const rendered = new Renderer( parsed.ast );
+export default function slashdown( src ) {
+  const tokens = lex( src );
+  const tree   = parse( tokens );
+  const html   = render( tree );
 
-  return rendered.markup;
+  return html;
 }
