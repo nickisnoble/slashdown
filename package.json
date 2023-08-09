@@ -1,25 +1,10 @@
 {
   "name": "slashdown",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/nickisnoble/slashdown.git"
   },
   "author": "Nick Noble",
-  "license": "MIT",
-  "scripts": {
-    "start": "snowpack dev",
-    "build": "snowpack build",
-    "test": "echo \"This template does not include a test runner by default.\" && exit 1",
-    "format": "prettier --write \"src/**/*.js\"",
-    "lint": "prettier --check \"src/**/*.js\""
-  },
-  "dependencies": {
-    "dedent": "^0.7.0",
-    "marked": "^2.0.0"
-  },
-  "devDependencies": {
-    "prettier": "^2.0.5",
-    "snowpack": "^3.0.1"
-  }
+  "license": "MIT"
 }
