@@ -1,21 +1,17 @@
 {
   "name": "slashdown",
+  "private": true,
   "version": "2.0.0",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/nickisnoble/slashdown.git"
-  },
-  "author": "Nick Noble",
-  "license": "MIT",
-  "main": "src/index.js",
-  "files": ["dist", "src"],
+  "type": "module",
   "scripts": {
-    "clean": "rm -rf dist",
-    "prebuild": "npm run clean",
-    "build": "tsc --module commonjs",
-    "preversion": "npm run build"
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "test": "vitest"
   },
   "devDependencies": {
-    "typescript": "^5.1.6"
+    "typescript": "^5.0.2",
+    "vite": "^4.4.5",
+    "vitest": "^0.34.1"
   }
 }
