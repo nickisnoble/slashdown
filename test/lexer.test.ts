@@ -127,7 +127,7 @@ test('can lex a tag with attributes and text content', () => {
 })
 
 
-test('can lex long markdown blocks, with code fences', () => {
+test('can lex markdown only', () => {
   const src = dedent`
     # This is a markdown block
 
@@ -141,10 +141,43 @@ test('can lex long markdown blocks, with code fences', () => {
   const lexer = new Lexer(src)
   const tokens = lexer.tokens()
 
-  console.info(src)
-  console.info(tokens)
-
   expect(tokens).toEqual([
     { type: 'Markdown', content: src, indent: 0 },
+  ])
+})
+
+
+test('can lex long markdown inside tag', () => {
+  const src = dedent`
+    / .container
+      # This is a markdown block
+
+      Here is some text.
+      - and
+      - a
+      - list
+
+      More text here.
+  `;
+  const lexer = new Lexer(src)
+  const tokens = lexer.tokens()
+
+  expect(tokens).toEqual([
+    { type: 'Tag', content: "", indent: 0 },
+    { type: 'Class', content: "container", indent: 0 },
+    {
+      type: 'Markdown',
+      content: dedent`
+        # This is a markdown block
+
+        Here is some text.
+        - and
+        - a
+        - list
+
+        More text here.
+      `,
+      indent: 2
+    },
   ])
 })

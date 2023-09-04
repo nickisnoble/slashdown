@@ -115,7 +115,12 @@ export class Lexer {
         const notATag = !isTagStart( nextLine );
         const sameBlock = spacesPreceding(nextLine) >= startingIndentLevel;
 
-        return sameBlock && notATag;
+        // If the next line:
+        // - is not a tag start (/)
+        // - has the same or greater indent
+        // - or is blank
+        // ...consider it a continuation of this markdown.
+        return sameBlock && notATag || isBlank(nextLine);
       }
 
       while( markdownRemains() ) {
@@ -130,6 +135,10 @@ export class Lexer {
          const dedentedLine = line.slice(spacesPreceding(line));
          markdownToken.content += "\n" + dedentedLine;
       }
+
+
+      // Remove any trailing newline.
+      markdownToken.content = markdownToken.content.trim()
 
       tokenList.push( markdownToken )
     }

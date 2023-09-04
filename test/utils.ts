@@ -11,5 +11,5 @@ export function dedent(strings: TemplateStringsArray, ...values: any[]) {
   const lines = fullString.split('\n');
   const firstLineIndent = indentLevel(lines[0]);
 
-  return lines.map(line => line.slice(firstLineIndent)).join('\n');
+  return lines.map(line => line.slice(firstLineIndent)).join('\n').trim();
 }
