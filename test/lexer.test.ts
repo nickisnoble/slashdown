@@ -1,5 +1,6 @@
 import { expect, test } from 'vitest'
-import { type Token, Lexer } from '../src/lexer'
+import type { Slashdown } from "../src/types";
+import { Lexer } from '../src/lexer'
 import { dedent } from "./utils"
 
 test('it works', () => {
@@ -19,7 +20,7 @@ test('can lex a simple tag', () => {
   const lexer = new Lexer(src)
   const tokens = lexer.tokens()
 
-  const expected: Token[] = [
+  const expected: Slashdown.Token[] = [
     {
       type: "Tag",
       content: "div",

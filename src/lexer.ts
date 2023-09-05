@@ -1,19 +1,4 @@
-const TOKEN_TYPES = ["Tag", "Attribute", "Id", "Class", "Text", "Markdown"] as const;
-
-type TokenType = typeof TOKEN_TYPES[number];
-
-export type Token = {
-  type: TokenType,
-  content: string,
-  indent: number
-}
-
-export type TagToken =       { type: "Tag" }       & Token
-export type AttributeToken = { type: "Attribute" } & Token
-export type IdToken =        { type: "Id" }        & Token
-export type ClassToken =     { type: "Class" }     & Token
-export type TextToken =      { type: "Text" }      & Token
-export type MarkdownToken =  { type: "Markdown" }  & Token
+import type { Slashdown } from "./types"
 
 const patterns = {
   "Tag":       /^\/([\w-]*)/,
@@ -31,7 +16,6 @@ const spacesPreceding = ( line: string ): number => {
   return match ? match[0].length : 0;
 }
 
-
 export class Lexer {
   src: string;
 
@@ -39,9 +23,9 @@ export class Lexer {
     this.src = src;
   }
 
-  tokens(src: string = this.src) {
-    this.src = src; // update src
-    const tokenList: Token[] = []; // reset
+  tokens(src: string = this.src): Slashdown.Token[] {
+    this.src = src; // update src in case of new input
+    const tokenList: Slashdown.Token[] = []; // reset
 
     let i = 0;
     const lines: string[] = src.split("\n");
@@ -102,7 +86,7 @@ export class Lexer {
     }
 
     function lexMarkdownLines( startingLine: string, startingIndentLevel: number ): void {
-      const markdownToken: MarkdownToken = {
+      const markdownToken: { type: "Markdown" } & Slashdown.Token = {
         type: "Markdown",
         content: startingLine.trim(),
         indent: startingIndentLevel
