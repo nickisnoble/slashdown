@@ -12,3 +12,8 @@ import slashdown from 'slashdown';
 const sd = new Slashdown()
 const markup = sd(content)
 ```
+
+## Known issues
+
+- Ids/class shorthand conflict with id / class attributes.
+- Codefences not yet supported
