@@ -1,10 +1,10 @@
 import { expect, test, describe, vi } from 'vitest'
-import type { Slashdown } from '../src/types'
+import type { SD } from '../src/types'
 import { Parser } from "../src/parser"
 import { dedent } from './utils'
 
 test('parser returns an array when given valid input', () => {
-  const tokens: Slashdown.Token[] = [
+  const tokens: SD.Token[] = [
     { type: 'Tag', content: 'div', indent: 0 },
   ]
 
@@ -13,7 +13,7 @@ test('parser returns an array when given valid input', () => {
 })
 
 test('parser rejects unexpected top level token', () => {
-  const tokens: Slashdown.Token[] = [
+  const tokens: SD.Token[] = [
     { type: 'Attribute', content: 'autofocus', indent: 0 },
     { type: 'Tag', content: 'input', indent: 0 },
   ]
@@ -24,7 +24,7 @@ test('parser rejects unexpected top level token', () => {
 })
 
 test("ast() method only runs once", ()=> {
-  const tokens: Slashdown.Token[] = [
+  const tokens: SD.Token[] = [
     { type: 'Tag', content: 'div', indent: 0 },
     { type: 'Text', content: 'Hello world!', indent: 0 },
   ];
@@ -78,7 +78,7 @@ test("markdown only", ()=>{
 
 describe("Tag properties", ()=> {
   test('Parser coerces blank tags to divs', () => {
-    const blankTagToken: Slashdown.Token = { type: "Tag", content: "", indent: 0 }
+    const blankTagToken: SD.Token = { type: "Tag", content: "", indent: 0 }
     const firstNode = new Parser( [blankTagToken] ).ast()[0]
 
     console.log(new Parser( [blankTagToken] ).ast())
@@ -87,7 +87,7 @@ describe("Tag properties", ()=> {
   })
 
   test('classes and ids', () => {
-    const tokens: Slashdown.Token[] = [
+    const tokens: SD.Token[] = [
       { type: "Tag", content: "header", indent: 0 },
       { type: "Class", content: "font-lg", indent: 0 },
       { type: "Id", content: "header", indent: 0 },
@@ -102,7 +102,7 @@ describe("Tag properties", ()=> {
   })
 
   test('regular attributes', () => {
-    const tokens: Slashdown.Token[] = [
+    const tokens: SD.Token[] = [
       { type: "Tag", content: "input", indent: 0 },
       { type: "Attribute", content: "data-foo='bar'", indent: 0 },
       { type: "Attribute", content: 'type="text"', indent: 0 },
@@ -117,7 +117,7 @@ describe("Tag properties", ()=> {
   })
 
   test('boolean attributes', () => {
-    const tokens: Slashdown.Token[] = [
+    const tokens: SD.Token[] = [
       { type: "Tag", content: "input", indent: 0 },
       { type: "Attribute", content: "autofocus", indent: 0 },
     ]
@@ -131,7 +131,7 @@ describe("Tag properties", ()=> {
 })
 
 describe('longer doc', () => {
-  const tokens: Slashdown.Token[] = [
+  const tokens: SD.Token[] = [
     { type: 'Tag', content: 'section', indent: 0 },
       { type: 'Attribute', content: "foo='bar'", indent: 0 },
 
@@ -169,7 +169,6 @@ describe('longer doc', () => {
     expect(footer.children[0].content).toBe('Goodnight Moon.')
 
     const h1 = section.children[0]
-    const md = section.children[1]
     expect(h1.type).toBe('Tag')
     expect(h1.tagName).toBe('h1')
     expect(h1.children.length).toBe(1)

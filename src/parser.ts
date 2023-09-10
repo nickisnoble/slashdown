@@ -1,14 +1,14 @@
-import { Slashdown } from "./types"
+import type { SD } from "./types"
 
-const INDENTATION_IMMUNE_TOKENS: Partial<Slashdown.TokenType>[] = ["Attribute", "Id", "Class", "Text"];
-const isNonIndenting = ( tokenType: Slashdown.TokenType ): boolean => INDENTATION_IMMUNE_TOKENS.includes( tokenType )
+const INDENTATION_IMMUNE_TOKENS: Partial<SD.TokenType>[] = ["Attribute", "Id", "Class", "Text"];
+const isNonIndenting = ( tokenType: SD.TokenType ): boolean => INDENTATION_IMMUNE_TOKENS.includes( tokenType )
 
 export class Parser {
-  tokens: Slashdown.Token[]
-  private tree: Slashdown.Node[]
+  tokens: SD.Token[]
+  private tree: SD.Node[]
   private cursor: number
 
-  constructor( tokens: Slashdown.Token[] ) {
+  constructor( tokens: SD.Token[] ) {
     this.tokens = tokens
     this.tree = []
     this.cursor = 0
@@ -22,14 +22,14 @@ export class Parser {
     }
   }
 
-  parse( tokens: Slashdown.Token[] = this.tokens ): any[] {
+  parse( tokens: SD.Token[] = this.tokens ): any[] {
     // reset instance
     this.tokens = tokens;
     this.tree = [];
 
     // Top loop
     while (this.remaining()) {
-      const token: Slashdown.Token = this.consumeNext();
+      const token: SD.Token = this.consumeNext();
 
       switch (token.type) {
         case "Tag":
@@ -55,24 +55,24 @@ export class Parser {
     return this.cursor < this.tokens.length;
   }
 
-  private lookahead(): Slashdown.Token {
+  private lookahead(): SD.Token {
     return this.tokens[this.cursor];
   }
 
-  private consumeNext(): Slashdown.Token {
+  private consumeNext(): SD.Token {
     const token = this.tokens[this.cursor];
     this.cursor += 1;
     return token;
   }
 
-  private parseTag(startTag: Slashdown.Token): Slashdown.TagNode {
+  private parseTag(startTag: SD.Token): SD.TagNode {
     let tagName = startTag.content;
 
     // handle `/` shorthand
     // TODO: Maybe move this to a rendering strategy or options object to set a "default" component
     tagName = tagName === "" ? "div" : tagName;
 
-    const tag: Slashdown.TagNode = {
+    const tag: SD.TagNode = {
       type: "Tag",
       tagName,
       children: []
@@ -124,7 +124,7 @@ export class Parser {
     return tag;
   }
 
-  private parseMarkdown(token: Slashdown.Token):  Slashdown.MarkdownNode {
+  private parseMarkdown(token: SD.Token):  SD.MarkdownNode {
     return {
       type: "Markdown",
       content: token.content

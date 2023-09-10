@@ -1,4 +1,4 @@
-import type { Slashdown } from "./types"
+import type { SD } from "./types"
 
 const patterns = {
   "Tag":       /^\/([\w-]*)/,
@@ -23,9 +23,9 @@ export class Lexer {
     this.src = src;
   }
 
-  tokens(src: string = this.src): Slashdown.Token[] {
+  tokens(src: string = this.src): SD.Token[] {
     this.src = src; // update src in case of new input
-    const tokenList: Slashdown.Token[] = []; // reset
+    const tokenList: SD.Token[] = []; // reset
 
     let i = 0;
     const lines: string[] = src.split("\n");
@@ -86,7 +86,7 @@ export class Lexer {
     }
 
     function lexMarkdownLines( startingLine: string, startingIndentLevel: number ): void {
-      const markdownToken: { type: "Markdown" } & Slashdown.Token = {
+      const markdownToken: { type: "Markdown" } & SD.Token = {
         type: "Markdown",
         content: startingLine.trim(),
         indent: startingIndentLevel

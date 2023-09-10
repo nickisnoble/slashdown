@@ -1,8 +1,7 @@
 const TOKEN_TYPES = ["Tag", "Attribute", "Id", "Class", "Text", "Markdown"] as const;
 const NODE_TYPES = ["Tag", "Text", "Markdown"] as const;
 
-export declare namespace Slashdown {
-
+export declare namespace SD {
   // Tokens
   type TokenType = typeof TOKEN_TYPES[number];
   type Token = {
@@ -30,4 +29,7 @@ export declare namespace Slashdown {
     ids?: string[],
     children: Node[]
   }
+
+  type Ast = Node[]
+  type Renderer = (input: Ast) => string;
 }
