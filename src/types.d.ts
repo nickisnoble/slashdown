@@ -31,5 +31,8 @@ export declare namespace SD {
   }
 
   type Ast = Node[]
-  type Renderer = (input: Ast) => string;
+
+  interface Renderer {
+    render(input: Ast): string;
+  }
 }

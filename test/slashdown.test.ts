@@ -2,6 +2,7 @@ import type { SD } from '../src/types'
 import { expect, test, describe, vi } from 'vitest'
 import { Slashdown, sd } from "../src/slashdown";
 import { dedent } from './utils';
+import JSONRenderer from '../src/renderers/json';
 
 test( "it works", ()=> {
   const src = dedent`
@@ -51,4 +52,17 @@ test( "shorthand works", () => {
   expect( sd`
     / .container = Hello World!
   ` ).toBeTypeOf("string")
+})
+
+describe("renderers", ()=> {
+  const src = "/ .container = Hello World!"
+
+  test( "JSONRenderer produces valid JSON", () => {
+    const renderer = JSONRenderer;
+    const slashdown = new Slashdown(src, renderer)
+    const expected = '[{"type":"Tag","tagName":"div","children":[{"type":"Text","content":"Hello World!"}],"classes":["container"]}]';
+
+    expect( slashdown.process() ).toBe( expected )
+    expect( JSON.parse( slashdown.process() )).toStrictEqual( JSON.parse(expected) )
+  })
 })

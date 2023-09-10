@@ -8,7 +8,7 @@ export class Parser {
   private tree: SD.Node[]
   private cursor: number
 
-  constructor( tokens: SD.Token[] ) {
+  constructor( tokens: SD.Token[] = [] ) {
     this.tokens = tokens
     this.tree = []
     this.cursor = 0

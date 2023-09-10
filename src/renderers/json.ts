@@ -1,7 +1,7 @@
 import type { SD } from "../types";
 
-const JSONRenderer: SD.Renderer = (ast) => {
-  return JSON.stringify(ast);
+export default class JSONRenderer implements SD.Renderer {
+ render(ast: SD.Ast): string {
+    return JSON.stringify(ast);
+  }
 }
-
-export default JSONRenderer;

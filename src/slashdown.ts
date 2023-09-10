@@ -5,29 +5,55 @@ import { Parser } from "./parser";
 
 class Slashdown {
   src: string;
-  render: SD.Renderer;
+  lexer: Lexer;
+  parser: Parser;
+  renderer: SD.Renderer;
+  tokens: SD.Token[];
+  ast: SD.Ast;
 
   constructor( src = "", renderer = JSONRenderer ) {
     this.src = src;
-    this.render = renderer;
+    this.renderer = new renderer;
+
+    this.lexer = new Lexer();
+    this.parser = new Parser();
+
+    this.tokens = [];
+    this.ast = [];
   }
 
   process( src = this.src ) {
     this.src = src;
+    return this.tokenize().parse().render();
+  }
 
-    const tokens = new Lexer( src ).tokens();
-    const ast = new Parser( tokens ).ast();
-    return this.render( ast );
+  tokenize() {
+    if( !this.src.length ) console.warn("Slashdown source is empty!");
+    this.tokens = new Lexer( this.src ).tokens();
+
+    return this;
+  }
+
+  parse() {
+    if( !this.tokens.length ) console.warn("No tokens to parse. Please ensure the slashdown source is tokenized before parsing.");
+    this.ast = new Parser( this.tokens ).ast()
+
+    return this;
+  }
+
+  render() {
+    if( !this.ast.length ) console.warn("No AST to render. Please ensure the slashdown source is tokenized and parsed before rendering.");
+    return this.renderer.render( this.ast );
   }
 }
 
 
 function sd(strings: TemplateStringsArray, ...values: any[]) {
-  const fullString = strings.reduce((result, string, i) => (
+  const src = strings.reduce((result, string, i) => (
     result + string + (values[i] || '')
   ), '').replace(/^\n+|\n+$/g, ''); // remove leading or trailing newlines
 
-  return new Slashdown(fullString).process();
+  return new Slashdown(src).process();
 }
 
 
