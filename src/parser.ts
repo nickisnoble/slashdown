@@ -95,8 +95,7 @@ export class Parser {
 
           case "Attribute":
             let [key, value] = token.content.split('=');
-            value = value
-              .replace(/'|"/g, "")
+            value = value?.replace(/'|"/g, "")
 
             if( !tag.attributes ) tag.attributes = {};
             tag.attributes[key] = value ?? true;

@@ -1,6 +1,7 @@
-import { expect, test, describe } from 'vitest'
+import { expect, test, describe, vi } from 'vitest'
 import type { Slashdown } from '../src/types'
 import { Parser } from "../src/parser"
+import { dedent } from './utils'
 
 test('parser returns an array when given valid input', () => {
   const tokens: Slashdown.Token[] = [
@@ -11,16 +12,125 @@ test('parser returns an array when given valid input', () => {
   expect( ast.length ).toBe(1)
 })
 
-test('Parser coerces blank tags to divs', () => {
-  const blankTagToken: Slashdown.Token = { type: "Tag", content: "", indent: 0 }
-  const firstNode = new Parser( [blankTagToken] ).ast()[0]
+test('parser rejects unexpected top level token', () => {
+  const tokens: Slashdown.Token[] = [
+    { type: 'Attribute', content: 'autofocus', indent: 0 },
+    { type: 'Tag', content: 'input', indent: 0 },
+  ]
 
-  console.log(new Parser( [blankTagToken] ).ast())
-
-  expect(firstNode.tagName).toBe("div");
+  expect(() => {
+    const ast = new Parser( tokens ).ast();
+  }).toThrow("Parse Error: Unexpected root level token.");
 })
 
-describe('with children', () => {
+test("ast() method only runs once", ()=> {
+  const tokens: Slashdown.Token[] = [
+    { type: 'Tag', content: 'div', indent: 0 },
+    { type: 'Text', content: 'Hello world!', indent: 0 },
+  ];
+
+  const parser = new Parser(tokens)
+
+  // Spy on the parse method
+  const spy = vi.spyOn(parser, 'parse')
+
+  // Call ast multiple times
+  parser.ast()
+  parser.ast()
+  parser.ast()
+
+  // Assert that parse was called only once
+  expect(spy).toHaveBeenCalledTimes(1)
+})
+
+test("markdown only", ()=>{
+  const ast = new Parser( [{
+    type: 'Markdown',
+    content: dedent`
+      # This is a markdown block
+
+      Here is some text.
+      - and
+      - a
+      - list
+
+      More text here.
+    `,
+    indent: 2
+  }] ).ast();
+
+  expect( ast ).toStrictEqual([
+    {
+      type: 'Markdown',
+      content: dedent`
+        # This is a markdown block
+
+        Here is some text.
+        - and
+        - a
+        - list
+
+        More text here.
+      `
+    }
+  ])
+})
+
+describe("Tag properties", ()=> {
+  test('Parser coerces blank tags to divs', () => {
+    const blankTagToken: Slashdown.Token = { type: "Tag", content: "", indent: 0 }
+    const firstNode = new Parser( [blankTagToken] ).ast()[0]
+
+    console.log(new Parser( [blankTagToken] ).ast())
+
+    expect(firstNode.tagName).toBe("div");
+  })
+
+  test('classes and ids', () => {
+    const tokens: Slashdown.Token[] = [
+      { type: "Tag", content: "header", indent: 0 },
+      { type: "Class", content: "font-lg", indent: 0 },
+      { type: "Id", content: "header", indent: 0 },
+      { type: "Class", content: "bg-red-500", indent: 0 },
+    ]
+
+    const tagNode = new Parser( tokens ).ast()[0]
+
+    expect( tagNode.tagName ).toBe("header")
+    expect( tagNode.classes ).toStrictEqual(["font-lg", "bg-red-500"])
+    expect( tagNode.ids ).toStrictEqual(["header"])
+  })
+
+  test('regular attributes', () => {
+    const tokens: Slashdown.Token[] = [
+      { type: "Tag", content: "input", indent: 0 },
+      { type: "Attribute", content: "data-foo='bar'", indent: 0 },
+      { type: "Attribute", content: 'type="text"', indent: 0 },
+    ]
+
+    const tagNode = new Parser( tokens ).ast()[0]
+
+    expect( tagNode.attributes ).toStrictEqual({
+      "data-foo": "bar",
+      type: "text"
+    })
+  })
+
+  test('boolean attributes', () => {
+    const tokens: Slashdown.Token[] = [
+      { type: "Tag", content: "input", indent: 0 },
+      { type: "Attribute", content: "autofocus", indent: 0 },
+    ]
+
+    const tagNode = new Parser( tokens ).ast()[0]
+
+    expect( tagNode.attributes ).toStrictEqual({
+      autofocus: true
+    })
+  })
+})
+
+describe('longer doc', () => {
   const tokens: Slashdown.Token[] = [
     { type: 'Tag', content: 'section', indent: 0 },
       { type: 'Attribute', content: "foo='bar'", indent: 0 },
