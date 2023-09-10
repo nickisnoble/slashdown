@@ -81,8 +81,6 @@ describe("Tag properties", ()=> {
     const blankTagToken: SD.Token = { type: "Tag", content: "", indent: 0 }
     const firstNode = new Parser( [blankTagToken] ).ast()[0]
 
-    console.log(new Parser( [blankTagToken] ).ast())
-
     expect(firstNode.tagName).toBe("div");
   })
 

@@ -44,8 +44,6 @@ export class Parser {
         default:
           throw new Error("Parse Error: Unexpected root level token.");
       }
-
-      console.info( this.tree )
     }
 
     return this.tree;
