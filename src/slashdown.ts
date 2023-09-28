@@ -1,7 +1,13 @@
 import type { SD } from "./types";
-import JSONRenderer from "./renderers/json"; // TODO: Switch default to HTML
 import { Lexer } from "./lexer";
 import { Parser } from "./parser";
+import HTMLRenderer from "./renderers/html";
+import JSONRenderer from "./renderers/json";
+
+interface SlashdownOptions {
+  src?: string;
+  renderer?: new() => SD.Renderer;
+}
 
 class Slashdown {
   src: string;
@@ -11,7 +17,7 @@ class Slashdown {
   tokens: SD.Token[];
   ast: SD.Ast;
 
-  constructor( src = "", renderer = JSONRenderer ) {
+  constructor({ src = "", renderer = HTMLRenderer }: SlashdownOptions = {}) {
     this.src = src;
     this.renderer = new renderer;
 
@@ -47,17 +53,23 @@ class Slashdown {
   }
 }
 
+function createSlashdown(options: SlashdownOptions = {}): (strings: TemplateStringsArray, ...values: any[]) => any {
+  const instance = new Slashdown(options);
 
-function sd(strings: TemplateStringsArray, ...values: any[]) {
-  const src = strings.reduce((result, string, i) => (
-    result + string + (values[i] || '')
-  ), '').replace(/^\n+|\n+$/g, ''); // remove leading or trailing newlines
+  return (strings: TemplateStringsArray, ...values: any[]) => {
+    const src = strings.reduce((result, string, i) => (
+      result + string + (values[i] || '')
+    ), '').replace(/^\n+|\n+$/g, '');
 
-  return new Slashdown(src).process();
+    instance.src = src;
+    return instance.process();
+  };
 }
 
 
 export {
+  createSlashdown,
   Slashdown,
-  sd
+  HTMLRenderer,
+  JSONRenderer
 }

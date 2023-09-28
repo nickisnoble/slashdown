@@ -1,8 +1,8 @@
-import type { SD } from '../src/types'
 import { expect, test, describe, vi } from 'vitest'
-import { Slashdown, sd } from "../src/slashdown";
+import { createSlashdown, Slashdown } from "../src/slashdown";
 import { dedent } from './utils';
 import JSONRenderer from '../src/renderers/json';
+import HTMLRenderer from '../src/renderers/html';
 
 test( "it works", ()=> {
   const src = dedent`
@@ -48,21 +48,46 @@ test( "it works", ()=> {
   expect( slashdown.process(src) ).toBeTypeOf("string");
 })
 
-test( "shorthand works", () => {
-  expect( sd`
-    / .container = Hello World!
-  ` ).toBeTypeOf("string")
-})
-
 describe("renderers", ()=> {
   const src = "/ .container = Hello World!"
 
-  test( "JSONRenderer produces valid JSON", () => {
+  test("JSONRenderer produces valid JSON", () => {
     const renderer = JSONRenderer;
-    const slashdown = new Slashdown(src, renderer)
+    const slashdown = new Slashdown({src, renderer})
     const expected = '[{"type":"Tag","tagName":"div","children":[{"type":"Text","content":"Hello World!"}],"classes":["container"]}]';
 
     expect( slashdown.process() ).toBe( expected )
     expect( JSON.parse( slashdown.process() )).toStrictEqual( JSON.parse(expected) )
+  })
+
+  test("HTMLRenderer produces valid HTML", () => {
+    const renderer = HTMLRenderer;
+    const slashdown = new Slashdown({src, renderer})
+    const expected = '<div class="container">Hello World!</div>';
+    expect( slashdown.process() ).toBe( expected )
+  })
+
+  test("Default renderer is HTML", () => {
+    const slashdown = new Slashdown()
+    const expected = '<div class="container">Hello World!</div>';
+    expect( slashdown.process(src) ).toBe( expected )
+  })
+})
+
+describe("shorthand", () => {
+  test("it works", () => {
+    const sd = createSlashdown();
+    const rendered = sd`/ .container = Hello World!`
+    const expected = '<div class="container">Hello World!</div>';
+    expect( rendered ).toBe( expected )
+  })
+
+  test("it can be configured", () => {
+    const sd = createSlashdown({
+      renderer: JSONRenderer
+    });
+    const rendered = sd`/ .container = Hello World!`
+    const expected = '[{"type":"Tag","tagName":"div","children":[{"type":"Text","content":"Hello World!"}],"classes":["container"]}]';
+    expect( rendered ).toBe( expected )
   })
 })

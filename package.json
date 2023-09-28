@@ -14,5 +14,9 @@
     "typescript": "^5.0.2",
     "vite": "^4.4.5",
     "vitest": "^0.34.1"
+  },
+  "dependencies": {
+    "micromark": "^4.0.0",
+    "micromark-extension-gfm": "^3.0.0"
   }
 }
