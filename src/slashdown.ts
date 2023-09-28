@@ -66,7 +66,6 @@ function createSlashdown(options: SlashdownOptions = {}): (strings: TemplateStri
   };
 }
 
-
 export {
   createSlashdown,
   Slashdown,
