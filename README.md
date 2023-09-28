@@ -7,10 +7,23 @@ For when MDX is too much, but Markdown is too little.
 `$ npm install slashdown`
 
 ```js
-import slashdown from 'slashdown';
+import { sd } from 'slashdown';
 
-const sd = new Slashdown()
-const markup = sd(content)
+const markup = sd`
+  /header
+    # Slashdown
+
+  /ul .grid.grid-cols-3
+
+    /li
+      ### Easy to read
+
+    /li
+      ### Fast to write
+
+    /li
+      ### You already know it
+`
 ```
 
 ## Known issues
