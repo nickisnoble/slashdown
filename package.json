@@ -1,13 +1,16 @@
 {
   "name": "slashdown",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "type": "module",
+  "main": "dist/slashdown.js",
+  "types": "src/slashdown.d.ts",
   "license": "MIT",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
-    "test": "vitest"
+    "test": "vitest",
+    "prepublishOnly": "npm run build"
   },
   "devDependencies": {
     "@vitest/coverage-v8": "^0.34.4",
