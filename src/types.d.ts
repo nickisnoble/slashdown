@@ -1,4 +1,12 @@
-const TOKEN_TYPES = ["Tag", "Attribute", "Id", "Class", "Text", "Markdown"] as const;
+const TOKEN_TYPES = [
+  "Tag",
+  "Attribute",
+  "Id",
+  "Class",
+  "Text",
+  "Markdown",
+  "CodeFence"
+] as const;
 const NODE_TYPES = ["Tag", "Text", "Markdown"] as const;
 
 export declare namespace SD {
@@ -7,7 +15,7 @@ export declare namespace SD {
   type Token = {
     type: TokenType,
     content: string,
-    indent: number
+    indent: number,
   }
 
   // Nodes

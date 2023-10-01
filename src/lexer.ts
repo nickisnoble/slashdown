@@ -5,11 +5,14 @@ const patterns = {
   "Id": /^#([\w-]+)/,
   "Class": /^\.([\w-]+)/,
   "Attribute": /^([\w-]+="[^"]*")|^([\w-]+)/,
-  "Text": /^=\s+(.+)$/
+  "Text": /^=\s+(.+)$/,
+  "CodeFence": /^`{3}([\w-]+)?$/
 };
 
-const isComment = (line: string): boolean => !!line.match(/^\s*\/\//);
-const isBlank = (line: string): boolean => line.trim() === "";
+const isComment    = (l: string): boolean => !!l.match(/^\s*\/\//);
+const isBlank      = (l: string): boolean => l.trim() === "";
+const isTagStart   = (l: string): boolean => l.trim().startsWith('/');
+const isFenceStart = (l: string): boolean => l.trim().startsWith('```');
 
 const spacesPreceding = (line: string): number => {
   const match = line.match(/^\s*/);
@@ -31,8 +34,6 @@ export class Lexer {
     const lines: string[] = src.split("\n");
 
     const lookahead = (n: number = 1): string => lines[i + n];
-    const isTagStart = (l: string): boolean => l.trim().startsWith('/');
-
 
     primary: while (i < lines.length) {
       const line = lines[i];
@@ -48,12 +49,13 @@ export class Lexer {
 
       if (isTagStart(line)) {
         lexTagLines(line, indentation);
-        i++;
-
+      } else if ( isFenceStart(line)) {
+        lexCodeFence(line, indentation);
       } else {
         lexMarkdownLines(line, indentation);
-        i++;
       }
+
+      i++;
     }
 
     function lexTagLines(startingLine: string, tagIndentLevel: number): void {
@@ -129,6 +131,7 @@ export class Lexer {
         if (nextLine === undefined) return false;
 
         const notATag = !isTagStart(nextLine);
+        const notAFence = !isFenceStart(nextLine);
         const sameBlock = spacesPreceding(nextLine) >= startingIndentLevel;
 
         // If the next line:
@@ -136,7 +139,7 @@ export class Lexer {
         // - has the same or greater indent
         // - or is blank
         // ...consider it a continuation of this markdown.
-        return sameBlock && notATag || isBlank(nextLine);
+        return sameBlock && notATag && notAFence || isBlank(nextLine);
       }
 
       while (markdownRemains()) {
@@ -157,6 +160,48 @@ export class Lexer {
       markdownToken.content = markdownToken.content.trim()
 
       tokenList.push(markdownToken)
+    }
+
+    function lexCodeFence(startingLine: string, startingIndentLevel: number): void {
+      const codefenceToken: { type: "CodeFence" } & SD.Token = {
+        type: "CodeFence",
+        content: startingLine.trim(),
+        indent: startingIndentLevel
+      };
+
+
+
+      const preformattedContentRemains = () => {
+        const nextLine = lookahead(1)
+        if (nextLine === undefined) return false;
+        const closing = nextLine.match(patterns["CodeFence"]);
+        const sameBlock = spacesPreceding(nextLine) >= startingIndentLevel;
+
+        if (closing) {
+          i++;
+          return false;
+        }
+
+        return !closing && sameBlock || isBlank(nextLine);
+      }
+
+      while (preformattedContentRemains()) {
+        i++; // count the line
+        const line = lines[i];
+
+        if (isBlank(line)) {
+          codefenceToken.content += "\n";
+          continue;
+        }
+
+        const dedentedLine = line.slice(spacesPreceding(line));
+        codefenceToken.content += "\n" + dedentedLine;
+      }
+
+      // Remove any trailing newline.
+      codefenceToken.content = codefenceToken.content.trim()
+
+      tokenList.push(codefenceToken)
     }
     return tokenList;
   }

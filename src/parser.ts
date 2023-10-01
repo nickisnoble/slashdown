@@ -37,6 +37,7 @@ export class Parser {
           this.tree.push(tag);
           break;
         case "Markdown":
+        case "CodeFence": // CodeFences *are* markdown
           this.tree.push(this.parseMarkdown(token));
           break;
 
@@ -84,6 +85,7 @@ export class Parser {
         const token = this.consumeNext();
         switch (token.type) {
           case "Markdown":
+          case "CodeFence":
             tag.children.push(this.parseMarkdown(token));
             break;
 

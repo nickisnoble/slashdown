@@ -36,6 +36,38 @@ function match(
 }
 
 
+test("codefence", () => {
+  const source: string = src`
+      / .container
+
+        # This is a codefence
+
+        \`\`\`sd
+        / this should be verbatim
+        \`\`\`
+    `
+
+    const tokens: SD.Token[] = [
+      { type: "Tag",       content: "",                                     indent: 0 },
+      { type: "Class",     content: "container",                               indent: 0 },
+      { type: "Markdown",  content: "# This is a codefence",                   indent: 2 },
+      { type: "CodeFence", content: "```sd\n/ this should be verbatim\n```",   indent: 2 },
+    ];
+
+    const ast: SD.Node[] = [
+      { type: "Tag",
+        tagName: "div",
+        classes: ["container"],
+        children: [
+          { type: "Markdown", content: "# This is a codefence" },
+          { type: "Markdown", content: "```sd\n/ this should be verbatim\n```" },
+        ]
+      }
+    ]
+
+  match(source, tokens, ast)
+})
+
 
 describe("syntax combos", () => {
   test("immediate markdown, followed by a tag with attributes and innerText, no blank lines", () => {
