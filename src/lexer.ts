@@ -88,6 +88,7 @@ export class Lexer {
 
         typeLoop: for (const type of ["Class", "Id", "Attribute", "Text"] as const) {
           const match = nextLine.match(
+            // TODO: Support multiple selectors on own line, eg #header.flex.justify-between
             new RegExp(
               (patterns[type].source + "$") // check ENTIRE line
               .replace("$$", "$") // (some regex already check for line-end)
