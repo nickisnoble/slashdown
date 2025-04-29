@@ -43,7 +43,8 @@ export class Parser {
 
         // Top level items should only be Tags or Markdown
         default:
-          throw new Error("Parse Error: Unexpected root level token.");
+          console.error(token)
+          throw new Error(`Parse Error: Unexpected root level token`);
       }
     }
 
@@ -94,11 +95,20 @@ export class Parser {
             break;
 
           case "Attribute":
-            let [key, value] = token.content.split('=');
-            value = value?.replace(/'|"/g, "")
-
             if( !tag.attributes ) tag.attributes = {};
-            tag.attributes[key] = value ?? true;
+
+            let key: string = token.content;
+            let value: boolean | string = true; // Assume no value, eg. <button disabled />
+            const splitPosition = token.content.indexOf('=');
+
+            // If it's a key=value pair, split them
+            if( splitPosition !== -1 ) {
+              key = token.content.substring(0, splitPosition);
+              value = token.content.substring(splitPosition + 1);
+              value = value?.replace(/['"]/g, "") // strip quotes
+            }
+
+            tag.attributes[key] = value;
             break;
 
           case "Id":

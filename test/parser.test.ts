@@ -20,7 +20,7 @@ test('parser rejects unexpected top level token', () => {
 
   expect(() => {
     const ast = new Parser( tokens ).ast();
-  }).toThrow("Parse Error: Unexpected root level token.");
+  }).toThrow("Parse Error: Unexpected root level token");
 })
 
 test("ast() method only runs once", ()=> {

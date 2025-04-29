@@ -29,12 +29,12 @@ function match(
       expect( ast ).toStrictEqual( expectedAst );
 
       if( expectedHtml.length ) {
-        expect( renderer.render(ast) ).toBe( expectedHtml )
+        const html = renderer.render(ast)
+        expect( html ).toBe( expectedHtml )
       }
     }
   }
 }
-
 
 test("codefence", () => {
   const source: string = src`
@@ -89,5 +89,56 @@ describe("syntax combos", () => {
     ];
 
     match( source, tokens )
+  })
+})
+
+describe("htmx & tailwind", () => {
+  test("htmx attributes and tailwind classes", () => {
+    const source: string = src`
+      / #roll-result
+      /button = Click me
+        hx-post="/api/roll?sides=6"
+        hx-trigger="click"
+        hx-target="#roll-result"
+        class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+    `
+
+    const tokens: SD.Token[] = [
+      { type: "Tag",          content: "",                                            indent: 0 },
+      { type: "Id",           content: "roll-result",                                 indent: 0 },
+      { type: "Tag",          content: "button",                                      indent: 0 },
+      { type: "Text",         content: "Click me",                                    indent: 0 },
+      { type: "Attribute",    content: 'hx-post="/api/roll?sides=6"',                 indent: 0 },
+      { type: "Attribute",    content: 'hx-trigger="click"',                          indent: 0 },
+      { type: "Attribute",    content: 'hx-target="#roll-result"',                    indent: 0 },
+      { type: "Attribute",    content: 'class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"', indent: 0 },
+    ];
+
+    const ast: SD.Node[] = [
+      {
+        type: "Tag",
+        tagName: "div",
+        ids: ["roll-result"],
+        children: []
+      },
+      {
+        type: "Tag",
+        tagName: "button",
+        attributes: {
+          "hx-post": "/api/roll?sides=6",
+          "hx-trigger": "click",
+          "hx-target": "#roll-result",
+          "class": "bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+        },
+        children: [
+          {
+            type: "Text",
+            content: "Click me"
+          }
+        ]
+      }
+    ]
+
+    match( source, tokens, ast )
   })
 })
