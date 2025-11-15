@@ -1,0 +1,52 @@
+{
+  "name": "slashdown",
+  "displayName": "Slashdown",
+  "description": "Syntax highlighting for Slashdown - Markdown with HTML-like tags",
+  "version": "0.1.0",
+  "publisher": "slashdown",
+  "icon": "icon.png",
+  "engines": {
+    "vscode": "^1.75.0"
+  },
+  "categories": [
+    "Programming Languages"
+  ],
+  "keywords": [
+    "slashdown",
+    "markdown",
+    "markup",
+    "syntax highlighting"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/nickisnoble/slashdown"
+  },
+  "contributes": {
+    "languages": [
+      {
+        "id": "slashdown",
+        "aliases": [
+          "Slashdown",
+          "slashdown",
+          "sd"
+        ],
+        "extensions": [
+          ".sd",
+          ".slashdown"
+        ],
+        "configuration": "./language-configuration.json",
+        "icon": {
+          "light": "./icon.png",
+          "dark": "./icon.png"
+        }
+      }
+    ],
+    "grammars": [
+      {
+        "language": "slashdown",
+        "scopeName": "text.slashdown",
+        "path": "./syntaxes/slashdown.tmLanguage.json"
+      }
+    ]
+  }
+}

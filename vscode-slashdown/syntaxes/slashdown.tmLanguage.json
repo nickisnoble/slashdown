@@ -1,0 +1,342 @@
+{
+  "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+  "name": "Slashdown",
+  "scopeName": "text.slashdown",
+  "patterns": [
+    {
+      "include": "#comment"
+    },
+    {
+      "include": "#tag-line"
+    },
+    {
+      "include": "#code-fence"
+    },
+    {
+      "include": "#markdown-content"
+    }
+  ],
+  "repository": {
+    "comment": {
+      "name": "comment.line.double-slash.slashdown",
+      "match": "^\\s*//.*$"
+    },
+    "tag-line": {
+      "name": "meta.tag.slashdown",
+      "begin": "^(\\s*)(/)([\\w-]*)",
+      "beginCaptures": {
+        "2": {
+          "name": "punctuation.definition.tag.begin.slashdown"
+        },
+        "3": {
+          "name": "entity.name.tag.slashdown"
+        }
+      },
+      "end": "$",
+      "patterns": [
+        {
+          "include": "#tag-id"
+        },
+        {
+          "include": "#tag-class"
+        },
+        {
+          "include": "#tag-attribute"
+        },
+        {
+          "include": "#tag-text"
+        }
+      ]
+    },
+    "tag-id": {
+      "name": "meta.tag.id.slashdown",
+      "match": "#([\\w-]+)",
+      "captures": {
+        "0": {
+          "name": "entity.other.attribute-name.id.slashdown"
+        },
+        "1": {
+          "name": "string.unquoted.id.slashdown"
+        }
+      }
+    },
+    "tag-class": {
+      "name": "meta.tag.class.slashdown",
+      "match": "\\.([\\w-]+)",
+      "captures": {
+        "0": {
+          "name": "entity.other.attribute-name.class.slashdown"
+        },
+        "1": {
+          "name": "string.unquoted.class.slashdown"
+        }
+      }
+    },
+    "tag-attribute": {
+      "patterns": [
+        {
+          "name": "meta.tag.attribute.with-value.slashdown",
+          "match": "([\\w-]+)(=)(\"[^\"]*\")",
+          "captures": {
+            "1": {
+              "name": "entity.other.attribute-name.slashdown"
+            },
+            "2": {
+              "name": "punctuation.separator.key-value.slashdown"
+            },
+            "3": {
+              "name": "string.quoted.double.slashdown"
+            }
+          }
+        },
+        {
+          "name": "meta.tag.attribute.without-value.slashdown",
+          "match": "\\b([\\w-]+)\\b(?!\\s*=)",
+          "captures": {
+            "1": {
+              "name": "entity.other.attribute-name.slashdown"
+            }
+          }
+        }
+      ]
+    },
+    "tag-text": {
+      "name": "meta.tag.text.slashdown",
+      "match": "=\\s+(.+)$",
+      "captures": {
+        "0": {
+          "name": "meta.embedded.text.slashdown"
+        },
+        "1": {
+          "name": "string.unquoted.slashdown"
+        }
+      }
+    },
+    "code-fence": {
+      "name": "markup.fenced_code.block.slashdown",
+      "begin": "^\\s*(`{3})(\\w+)?\\s*$",
+      "beginCaptures": {
+        "1": {
+          "name": "punctuation.definition.markdown.code-fence.begin.slashdown"
+        },
+        "2": {
+          "name": "fenced_code.block.language.slashdown"
+        }
+      },
+      "end": "^\\s*(`{3})\\s*$",
+      "endCaptures": {
+        "1": {
+          "name": "punctuation.definition.markdown.code-fence.end.slashdown"
+        }
+      },
+      "patterns": [
+        {
+          "begin": "(?<=```javascript|```js)",
+          "end": "(?=```)",
+          "name": "source.js.embedded.slashdown",
+          "patterns": [
+            {
+              "include": "source.js"
+            }
+          ]
+        },
+        {
+          "begin": "(?<=```typescript|```ts)",
+          "end": "(?=```)",
+          "name": "source.ts.embedded.slashdown",
+          "patterns": [
+            {
+              "include": "source.ts"
+            }
+          ]
+        },
+        {
+          "begin": "(?<=```python|```py)",
+          "end": "(?=```)",
+          "name": "source.python.embedded.slashdown",
+          "patterns": [
+            {
+              "include": "source.python"
+            }
+          ]
+        },
+        {
+          "begin": "(?<=```json)",
+          "end": "(?=```)",
+          "name": "source.json.embedded.slashdown",
+          "patterns": [
+            {
+              "include": "source.json"
+            }
+          ]
+        },
+        {
+          "begin": "(?<=```html)",
+          "end": "(?=```)",
+          "name": "text.html.embedded.slashdown",
+          "patterns": [
+            {
+              "include": "text.html.basic"
+            }
+          ]
+        },
+        {
+          "begin": "(?<=```css)",
+          "end": "(?=```)",
+          "name": "source.css.embedded.slashdown",
+          "patterns": [
+            {
+              "include": "source.css"
+            }
+          ]
+        },
+        {
+          "name": "markup.raw.block.slashdown",
+          "match": ".+"
+        }
+      ]
+    },
+    "markdown-content": {
+      "patterns": [
+        {
+          "name": "markup.heading.1.slashdown",
+          "match": "^\\s*(#{1})\\s+(.+)$",
+          "captures": {
+            "1": {
+              "name": "punctuation.definition.heading.slashdown"
+            },
+            "2": {
+              "name": "entity.name.section.slashdown"
+            }
+          }
+        },
+        {
+          "name": "markup.heading.2.slashdown",
+          "match": "^\\s*(#{2})\\s+(.+)$",
+          "captures": {
+            "1": {
+              "name": "punctuation.definition.heading.slashdown"
+            },
+            "2": {
+              "name": "entity.name.section.slashdown"
+            }
+          }
+        },
+        {
+          "name": "markup.heading.3.slashdown",
+          "match": "^\\s*(#{3})\\s+(.+)$",
+          "captures": {
+            "1": {
+              "name": "punctuation.definition.heading.slashdown"
+            },
+            "2": {
+              "name": "entity.name.section.slashdown"
+            }
+          }
+        },
+        {
+          "name": "markup.heading.4.slashdown",
+          "match": "^\\s*(#{4})\\s+(.+)$",
+          "captures": {
+            "1": {
+              "name": "punctuation.definition.heading.slashdown"
+            },
+            "2": {
+              "name": "entity.name.section.slashdown"
+            }
+          }
+        },
+        {
+          "name": "markup.heading.5.slashdown",
+          "match": "^\\s*(#{5})\\s+(.+)$",
+          "captures": {
+            "1": {
+              "name": "punctuation.definition.heading.slashdown"
+            },
+            "2": {
+              "name": "entity.name.section.slashdown"
+            }
+          }
+        },
+        {
+          "name": "markup.heading.6.slashdown",
+          "match": "^\\s*(#{6})\\s+(.+)$",
+          "captures": {
+            "1": {
+              "name": "punctuation.definition.heading.slashdown"
+            },
+            "2": {
+              "name": "entity.name.section.slashdown"
+            }
+          }
+        },
+        {
+          "name": "markup.bold.slashdown",
+          "match": "(\\*\\*|__)(?=\\S)(.+?)(?<=\\S)\\1",
+          "captures": {
+            "1": {
+              "name": "punctuation.definition.bold.slashdown"
+            },
+            "2": {
+              "name": "markup.bold.slashdown"
+            }
+          }
+        },
+        {
+          "name": "markup.italic.slashdown",
+          "match": "(\\*|_)(?=\\S)(.+?)(?<=\\S)\\1",
+          "captures": {
+            "1": {
+              "name": "punctuation.definition.italic.slashdown"
+            },
+            "2": {
+              "name": "markup.italic.slashdown"
+            }
+          }
+        },
+        {
+          "name": "markup.inline.raw.slashdown",
+          "match": "(`+)(?!`)(.+?)(?<!`)\\1(?!`)",
+          "captures": {
+            "1": {
+              "name": "punctuation.definition.raw.slashdown"
+            },
+            "2": {
+              "name": "markup.inline.raw.string.slashdown"
+            }
+          }
+        },
+        {
+          "name": "markup.underline.link.slashdown",
+          "match": "\\[([^\\]]+)\\]\\(([^\\)]+)\\)",
+          "captures": {
+            "1": {
+              "name": "string.other.link.title.slashdown"
+            },
+            "2": {
+              "name": "markup.underline.link.slashdown"
+            }
+          }
+        },
+        {
+          "name": "markup.list.unnumbered.slashdown",
+          "match": "^\\s*[-*+]\\s+",
+          "captures": {
+            "0": {
+              "name": "punctuation.definition.list.begin.slashdown"
+            }
+          }
+        },
+        {
+          "name": "markup.list.numbered.slashdown",
+          "match": "^\\s*\\d+\\.\\s+",
+          "captures": {
+            "0": {
+              "name": "punctuation.definition.list.begin.slashdown"
+            }
+          }
+        }
+      ]
+    }
+  }
+}
