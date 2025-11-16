@@ -54,7 +54,7 @@ describe("renderers", ()=> {
   test("JSONRenderer produces valid JSON", () => {
     const renderer = JSONRenderer;
     const slashdown = new Slashdown({src, renderer})
-    const expected = '[{"type":"Tag","tagName":"div","children":[{"type":"Text","content":"Hello World!"}],"classes":["container"]}]';
+    const expected = '[{"type":"Tag","tagName":"div","children":[{"type":"Text","content":"Hello World!","position":{"start":{"line":1,"column":14},"end":{"line":1,"column":14}}}],"classes":["container"],"position":{"start":{"line":1,"column":1},"end":{"line":1,"column":14}}}]';
 
     expect( slashdown.process() ).toBe( expected )
     expect( JSON.parse( slashdown.process() )).toStrictEqual( JSON.parse(expected) )
@@ -87,7 +87,7 @@ describe("shorthand", () => {
       renderer: JSONRenderer
     });
     const rendered = sd`/ .container = Hello World!`
-    const expected = '[{"type":"Tag","tagName":"div","children":[{"type":"Text","content":"Hello World!"}],"classes":["container"]}]';
+    const expected = '[{"type":"Tag","tagName":"div","children":[{"type":"Text","content":"Hello World!","position":{"start":{"line":1,"column":14},"end":{"line":1,"column":14}}}],"classes":["container"],"position":{"start":{"line":1,"column":1},"end":{"line":1,"column":14}}}]';
     expect( rendered ).toBe( expected )
   })
 })

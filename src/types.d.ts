@@ -16,21 +16,45 @@ export declare namespace SD {
     type: TokenType,
     content: string,
     indent: number,
+    line: number,
+    column: number,
+    endLine?: number,
+    endColumn?: number,
   }
 
-  // Nodes
+  // Unist-compatible position types
+  type Point = {
+    line: number,      // 1-indexed line number
+    column: number,    // 1-indexed column number
+    offset?: number,   // 0-indexed character offset (optional)
+  }
+
+  type Position = {
+    start: Point,
+    end: Point,
+  }
+
+  // Base Node type conforming to unist spec
+  type NodeType = typeof NODE_TYPES[number];
   type Node = {
     type: NodeType,
+    position?: Position,  // Optional position info (unist spec)
+    data?: any,           // Optional ecosystem-specific data (unist spec)
     [key: string]: any
   }
 
   type TextNode = Node & {
+    type: "Text",
     content: string,
   }
 
-  type MarkdownNode = TextNode
+  type MarkdownNode = Node & {
+    type: "Markdown",
+    content: string,
+  }
 
   type TagNode = Node & {
+    type: "Tag",
     tagName: string,
     attributes?: { [key: string]: string | boolean },
     classes?: string[],

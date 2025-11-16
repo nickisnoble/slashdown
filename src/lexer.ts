@@ -35,6 +35,9 @@ export class Lexer {
 
     const lookahead = (n: number = 1): string => lines[i + n];
 
+    // Helper to get current line number (1-indexed for unist)
+    const currentLine = (): number => i + 1;
+
     primary: while (i < lines.length) {
       const line = lines[i];
 
@@ -60,6 +63,8 @@ export class Lexer {
 
     function lexTagLines(startingLine: string, tagIndentLevel: number): void {
       let remainingText = startingLine.trim();
+      const startLine = currentLine();
+      let currentColumn = tagIndentLevel + 1; // 1-indexed column position
 
       // Lex first line
       let matchFound = true; // we have a valid tag, to start
@@ -70,13 +75,19 @@ export class Lexer {
           const match = remainingText.match(patterns[type]);
 
           if (match) {
+            const tokenStartColumn = currentColumn;
+            const matchLength = match[0].length;
+
             tokenList.push({
               type,
               content: match[1] ?? match[2] ?? match[0], // Grab the capture group content. Some have multiple possibilities!
-              indent: tagIndentLevel
+              indent: tagIndentLevel,
+              line: startLine,
+              column: tokenStartColumn,
             });
 
-            remainingText = remainingText.slice(match[0].length).trim();
+            currentColumn += matchLength + 1; // +1 for the space between tokens
+            remainingText = remainingText.slice(matchLength).trim();
             matchFound = true;
             break typeLoop; // break the for loop and start over because we found a match
           }
@@ -87,6 +98,7 @@ export class Lexer {
       while (!!nextLine && !isBlank(nextLine) && !isTagStart(nextLine)) {
         nextLine = nextLine.trim()
         let matchFound = false;
+        let lineColumn = tagIndentLevel + 1;
 
         typeLoop: for (const type of ["Class", "Id", "Attribute", "Text"] as const) {
           const match = nextLine.match(
@@ -101,7 +113,9 @@ export class Lexer {
             tokenList.push({
               type,
               content: match[1] ?? match[2] ?? match[0],
-              indent: tagIndentLevel
+              indent: tagIndentLevel,
+              line: i + 2, // +1 for next line, +1 for 1-indexed
+              column: lineColumn,
             })
 
             nextLine = nextLine.slice(match[0].length).trim(); // remove the matched part from nextLine
@@ -120,10 +134,13 @@ export class Lexer {
     }
 
     function lexMarkdownLines(startingLine: string, startingIndentLevel: number): void {
+      const startLine = currentLine();
       const markdownToken: { type: "Markdown" } & SD.Token = {
         type: "Markdown",
         content: startingLine.trim(),
-        indent: startingIndentLevel
+        indent: startingIndentLevel,
+        line: startLine,
+        column: startingIndentLevel + 1,
       };
 
       const markdownRemains = () => {
@@ -155,6 +172,9 @@ export class Lexer {
         markdownToken.content += "\n" + dedentedLine;
       }
 
+      // Track end position
+      markdownToken.endLine = currentLine();
+      markdownToken.endColumn = lines[i].length + 1;
 
       // Remove any trailing newline.
       markdownToken.content = markdownToken.content.trim()
@@ -163,10 +183,13 @@ export class Lexer {
     }
 
     function lexCodeFence(startingLine: string, startingIndentLevel: number): void {
+      const startLine = currentLine();
       const codefenceToken: { type: "CodeFence" } & SD.Token = {
         type: "CodeFence",
         content: startingLine.trim(),
-        indent: startingIndentLevel
+        indent: startingIndentLevel,
+        line: startLine,
+        column: startingIndentLevel + 1,
       };
 
 
@@ -197,6 +220,10 @@ export class Lexer {
         const dedentedLine = line.slice(spacesPreceding(line));
         codefenceToken.content += "\n" + dedentedLine;
       }
+
+      // Track end position
+      codefenceToken.endLine = currentLine();
+      codefenceToken.endColumn = lines[i].length + 1;
 
       // Remove any trailing newline.
       codefenceToken.content = codefenceToken.content.trim()

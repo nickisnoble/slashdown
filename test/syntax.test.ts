@@ -48,10 +48,10 @@ test("codefence", () => {
     `
 
     const tokens: SD.Token[] = [
-      { type: "Tag",       content: "",                                     indent: 0 },
-      { type: "Class",     content: "container",                               indent: 0 },
-      { type: "Markdown",  content: "# This is a codefence",                   indent: 2 },
-      { type: "CodeFence", content: "```sd\n/ this should be verbatim\n```",   indent: 2 },
+      { type: "Tag",       content: "",                                     indent: 0, line: 1, column: 1 },
+      { type: "Class",     content: "container",                               indent: 0, line: 1, column: 3 },
+      { type: "Markdown",  content: "# This is a codefence",                   indent: 2, line: 3, column: 3, endLine: 4, endColumn: 1 },
+      { type: "CodeFence", content: "```sd\n/ this should be verbatim\n```",   indent: 2, line: 5, column: 3, endLine: 7, endColumn: 6 },
     ];
 
     const ast: SD.Node[] = [
@@ -59,9 +59,10 @@ test("codefence", () => {
         tagName: "div",
         classes: ["container"],
         children: [
-          { type: "Markdown", content: "# This is a codefence" },
-          { type: "Markdown", content: "```sd\n/ this should be verbatim\n```" },
-        ]
+          { type: "Markdown", content: "# This is a codefence", position: { start: { line: 3, column: 3 }, end: { line: 4, column: 1 } } },
+          { type: "Markdown", content: "```sd\n/ this should be verbatim\n```", position: { start: { line: 5, column: 3 }, end: { line: 7, column: 6 } } },
+        ],
+        position: { start: { line: 1, column: 1 }, end: { line: 7, column: 6 } }
       }
     ]
 
@@ -78,14 +79,14 @@ describe("syntax combos", () => {
     `
 
     const tokens: SD.Token[] = [
-      { type: "Tag",       content: "footer",                                     indent: 0 },
-      { type: "Class",     content: "flex",                                        indent: 0 },
-      { type: "Class",     content: "justify-between",                            indent: 0 },
-      { type: "Markdown",  content: "Made with ❤️ in slashdown",                   indent: 2 },
-      { type: "Tag",       content: "a",                                          indent: 2 },
-      { type: "Attribute", content: 'href="https://miniware.team?ref=slashdown"', indent: 2 },
-      { type: "Attribute", content: 'target="_blank"',                            indent: 2 },
-      { type: "Text",      content: "by Miniware",                                indent: 2 },
+      { type: "Tag",       content: "footer",                                     indent: 0, line: 1, column: 1 },
+      { type: "Class",     content: "flex",                                        indent: 0, line: 1, column: 9 },
+      { type: "Class",     content: "justify-between",                            indent: 0, line: 1, column: 15 },
+      { type: "Markdown",  content: "Made with ❤️ in slashdown",                   indent: 2, line: 2, column: 3, endLine: 2, endColumn: 28 },
+      { type: "Tag",       content: "a",                                          indent: 2, line: 3, column: 3 },
+      { type: "Attribute", content: 'href="https://miniware.team?ref=slashdown"', indent: 2, line: 3, column: 6 },
+      { type: "Attribute", content: 'target="_blank"',                            indent: 2, line: 3, column: 49 },
+      { type: "Text",      content: "by Miniware",                                indent: 2, line: 3, column: 65 },
     ];
 
     match( source, tokens )
@@ -104,14 +105,14 @@ describe("htmx & tailwind", () => {
     `
 
     const tokens: SD.Token[] = [
-      { type: "Tag",          content: "",                                            indent: 0 },
-      { type: "Id",           content: "roll-result",                                 indent: 0 },
-      { type: "Tag",          content: "button",                                      indent: 0 },
-      { type: "Text",         content: "Click me",                                    indent: 0 },
-      { type: "Attribute",    content: 'hx-post="/api/roll?sides=6"',                 indent: 0 },
-      { type: "Attribute",    content: 'hx-trigger="click"',                          indent: 0 },
-      { type: "Attribute",    content: 'hx-target="#roll-result"',                    indent: 0 },
-      { type: "Attribute",    content: 'class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"', indent: 0 },
+      { type: "Tag",          content: "",                                            indent: 0, line: 1, column: 1 },
+      { type: "Id",           content: "roll-result",                                 indent: 0, line: 1, column: 3 },
+      { type: "Tag",          content: "button",                                      indent: 0, line: 2, column: 1 },
+      { type: "Text",         content: "Click me",                                    indent: 0, line: 2, column: 9 },
+      { type: "Attribute",    content: 'hx-post="/api/roll?sides=6"',                 indent: 0, line: 3, column: 1 },
+      { type: "Attribute",    content: 'hx-trigger="click"',                          indent: 0, line: 4, column: 1 },
+      { type: "Attribute",    content: 'hx-target="#roll-result"',                    indent: 0, line: 5, column: 1 },
+      { type: "Attribute",    content: 'class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"', indent: 0, line: 6, column: 1 },
     ];
 
     const ast: SD.Node[] = [
@@ -119,7 +120,8 @@ describe("htmx & tailwind", () => {
         type: "Tag",
         tagName: "div",
         ids: ["roll-result"],
-        children: []
+        children: [],
+        position: { start: { line: 1, column: 1 }, end: { line: 1, column: 15 } }
       },
       {
         type: "Tag",
@@ -133,9 +135,11 @@ describe("htmx & tailwind", () => {
         children: [
           {
             type: "Text",
-            content: "Click me"
+            content: "Click me",
+            position: { start: { line: 2, column: 11 }, end: { line: 2, column: 19 } }
           }
-        ]
+        ],
+        position: { start: { line: 2, column: 1 }, end: { line: 6, column: 89 } }
       }
     ]
 

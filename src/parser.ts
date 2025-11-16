@@ -14,6 +14,20 @@ export class Parser {
     this.cursor = 0
   }
 
+  private createPosition(startToken: SD.Token, endToken?: SD.Token): SD.Position {
+    const end = endToken || startToken;
+    return {
+      start: {
+        line: startToken.line,
+        column: startToken.column,
+      },
+      end: {
+        line: end.endLine || end.line,
+        column: end.endColumn || end.column,
+      }
+    };
+  }
+
   ast() {
     if (this.tree.length)
       return this.tree;
@@ -78,12 +92,16 @@ export class Parser {
       children: []
     };
 
+    let lastToken = startTag; // Track the last token for position tracking
+
     while (this.remaining()) {
       const nextToken = this.lookahead();
       const isChild = nextToken.indent > startTag.indent;
 
       if (isChild || isNonIndenting(nextToken.type)) {
         const token = this.consumeNext();
+        lastToken = token; // Update last token
+
         switch (token.type) {
           case "Markdown":
           case "CodeFence":
@@ -120,10 +138,12 @@ export class Parser {
             break;
 
           case "Text":
-            tag.children.push({
+            const textNode: SD.TextNode = {
               type: "Text",
-              content: token.content
-            });
+              content: token.content,
+              position: this.createPosition(token)
+            };
+            tag.children.push(textNode);
             break;
         }
       } else {
@@ -131,13 +151,17 @@ export class Parser {
       }
     }
 
+    // Add position information to the tag
+    tag.position = this.createPosition(startTag, lastToken);
+
     return tag;
   }
 
   private parseMarkdown(token: SD.Token):  SD.MarkdownNode {
     return {
       type: "Markdown",
-      content: token.content
+      content: token.content,
+      position: this.createPosition(token)
     };
   }
 }
