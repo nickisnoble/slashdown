@@ -1,5 +1,9 @@
 import type { SD } from "./types"
 
+// Constants
+const MAX_DEPTH = 100;
+const MAX_LINE_LENGTH = 10000;
+
 const patterns = {
   "Tag": /^\/([\w-]*)/,
   "Id": /^#([\w-]+)/,
@@ -35,6 +39,10 @@ export class Lexer {
   }
 
   tokens(src: string = this.src): SD.Token[] {
+    if (typeof src !== 'string') {
+      throw new Error('Lexer input must be a string');
+    }
+
     this.src = src; // update src in case of new input
     const tokenList: SD.Token[] = []; // reset
 
@@ -49,6 +57,10 @@ export class Lexer {
     primary: while (i < lines.length) {
       const line = lines[i];
 
+      if (line.length > MAX_LINE_LENGTH) {
+        throw new Error(`Line ${currentLine()} exceeds maximum length of ${MAX_LINE_LENGTH} characters`);
+      }
+
       // Skip blanks at top level.
       // (They are only important inside Markdown!)
       if (isComment(line) || isBlank(line)) {
@@ -57,6 +69,10 @@ export class Lexer {
       }
 
       const indentation = spacesPreceding(line);
+
+      if (indentation > MAX_DEPTH * 2) {
+        throw new Error(`Line ${currentLine()} has excessive indentation (depth > ${MAX_DEPTH})`);
+      }
 
       if (isTagStart(line)) {
         lexTagLines(line, indentation);

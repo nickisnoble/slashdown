@@ -4,6 +4,7 @@ import { MarkdownHandler } from './markdown-handler'
 
 const INDENTATION_IMMUNE_TOKENS: Partial<SD.TokenType>[] = ["Attribute", "Id", "Class", "Text"];
 const isNonIndenting = ( tokenType: SD.TokenType ): boolean => INDENTATION_IMMUNE_TOKENS.includes( tokenType )
+const MAX_NESTING_DEPTH = 100;
 
 export class Parser {
   tokens: SD.Token[]
@@ -110,7 +111,11 @@ export class Parser {
     return token;
   }
 
-  private parseTag(startTag: SD.Token): SD.Element {
+  private parseTag(startTag: SD.Token, depth: number = 0): SD.Element {
+    if (depth > MAX_NESTING_DEPTH) {
+      throw new Error(`Maximum nesting depth of ${MAX_NESTING_DEPTH} exceeded at line ${startTag.line}`);
+    }
+
     let tagName = startTag.content;
 
     // handle `/` shorthand
@@ -146,7 +151,7 @@ export class Parser {
             break;
 
           case "Tag":
-            tag.children.push(this.parseTag(token));
+            tag.children.push(this.parseTag(token, depth + 1));
             break;
 
           case "Attribute":

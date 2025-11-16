@@ -16,10 +16,10 @@
   "devDependencies": {
     "@types/hast": "^3.0.4",
     "@types/mdast": "^4.0.4",
-    "@vitest/coverage-v8": "^0.34.4",
-    "typescript": "^5.0.2",
-    "vite": "^4.4.5",
-    "vitest": "^0.34.1"
+    "@vitest/coverage-v8": "^0.34.6",
+    "typescript": "^5.9.3",
+    "vite": "^4.5.14",
+    "vitest": "^0.34.6"
   },
   "dependencies": {
     "hast-util-to-html": "^9.0.5",
@@ -27,7 +27,7 @@
     "mdast-util-gfm": "3.0.0",
     "mdast-util-to-hast": "^13.2.0",
     "mdast-util-to-markdown": "^2.1.2",
-    "micromark": "^4.0.0",
+    "micromark": "^4.0.2",
     "micromark-extension-gfm": "^3.0.0"
   }
 }
