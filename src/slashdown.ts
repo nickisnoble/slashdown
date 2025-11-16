@@ -25,7 +25,7 @@ class Slashdown {
     this.parser = new Parser();
 
     this.tokens = [];
-    this.ast = [];
+    this.ast = { type: 'root', children: [] };
   }
 
   process( src = this.src ) {
@@ -34,21 +34,23 @@ class Slashdown {
   }
 
   tokenize() {
-    if( !this.src.length ) console.warn("Slashdown source is empty!");
-    this.tokens = new Lexer( this.src ).tokens();
+    if( !this.src.length ) throw new Error("Slashdown source is empty");
+    this.lexer = new Lexer(this.src);
+    this.tokens = this.lexer.tokens();
 
     return this;
   }
 
   parse() {
-    if( !this.tokens.length ) console.warn("No tokens to parse. Please ensure the slashdown source is tokenized before parsing.");
-    this.ast = new Parser( this.tokens ).ast()
+    if( !this.tokens.length ) throw new Error("No tokens to parse");
+    this.parser = new Parser(this.tokens);
+    this.ast = this.parser.ast();
 
     return this;
   }
 
   render() {
-    if( !this.ast.length ) console.warn("No AST to render. Please ensure the slashdown source is tokenized and parsed before rendering.");
+    if( !this.ast.children.length ) throw new Error("No AST to render");
     return this.renderer.render( this.ast );
   }
 }

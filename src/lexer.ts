@@ -9,6 +9,14 @@ const patterns = {
   "CodeFence": /^`{3}([\w-]+)?$/
 };
 
+// Pre-compiled patterns for end-of-line matching
+const eolPatterns = {
+  "Class": /^\.([\w-]+)$/,
+  "Id": /^#([\w-]+)$/,
+  "Attribute": /^([\w-]+="[^"]*")$|^([\w-]+)$/,
+  "Text": /^=\s+(.+)$/
+};
+
 const isComment    = (l: string): boolean => !!l.match(/^\s*\/\//);
 const isBlank      = (l: string): boolean => l.trim() === "";
 const isTagStart   = (l: string): boolean => l.trim().startsWith('/');
@@ -101,13 +109,7 @@ export class Lexer {
         let lineColumn = tagIndentLevel + 1;
 
         typeLoop: for (const type of ["Class", "Id", "Attribute", "Text"] as const) {
-          const match = nextLine.match(
-            // TODO: Support multiple selectors on own line, eg #header.flex.justify-between
-            new RegExp(
-              (patterns[type].source + "$") // check ENTIRE line
-              .replace("$$", "$") // (some regex already check for line-end)
-            )
-          );
+          const match = nextLine.match(eolPatterns[type]);
 
           if (match) {
             tokenList.push({

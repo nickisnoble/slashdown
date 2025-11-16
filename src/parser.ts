@@ -81,8 +81,7 @@ export class Parser {
 
         // Top level items should only be Tags or Markdown
         default:
-          console.error(token)
-          throw new Error(`Parse Error: Unexpected root level token`);
+          throw new Error(`Parse Error: Unexpected root level token type "${token.type}" at line ${token.line}`);
       }
     }
 
