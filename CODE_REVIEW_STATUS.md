@@ -51,63 +51,47 @@ return `${key}="${value}"`;
 
 ---
 
-## ⚠️ Needs Attention
+## ⚠️ Recently Fixed
 
-### 5. ⚠️ No HTML Sanitization
-**Status:** NOT FIXED
-**Risk:** XSS vulnerabilities
-**Location:** All text output in renderers
-**Required Fix:**
-```typescript
-function escapeHtml(text: string): string {
-  return text
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#039;');
-}
-```
+### 5. ✅ No HTML Sanitization
+**Status:** FIXED
+**Location:** src/renderers/html.ts:6-13
+**Fix:** Added escapeHtml function, applied to all attribute values
+
+### 7. ✅ Redundant Instance Creation
+**Status:** FIXED
+**Location:** src/slashdown.ts:38-47
+**Fix:** Now reuses this.lexer and this.parser instances
+
+### 8. ✅ Regex Recompilation
+**Status:** FIXED
+**Location:** src/lexer.ts:12-18
+**Fix:** Pre-compiled eolPatterns object
+
+### 9. ✅ Unreachable Break Statements
+**Status:** NONE FOUND
+
+### 10. ✅ Inconsistent Error Handling
+**Status:** FIXED
+**Location:** src/parser.ts:84
+**Fix:** Removed console.error, improved error message
+
+### 12. ✅ Unused Instance Variables
+**Status:** FIXED (related to #7)
+
+### 13. ✅ Warning Instead of Error
+**Status:** FIXED
+**Location:** src/slashdown.ts
+**Fix:** Changed console.warn to throw errors
+
+---
+
+## ⚠️ Needs Attention
 
 ### 6. ⚠️ No Input Validation
 **Status:** NOT FIXED
 **Risk:** Unexpected behavior with malformed input
 **Required:** Input validation in lexer/parser
-
-### 7. ⚠️ Redundant Instance Creation
-**Status:** UNKNOWN - Need to check src/slashdown.ts
-**Check:** Are Lexer/Parser instances reused or recreated?
-
-### 8. ⚠️ Regex Recompilation
-**Status:** NOT FIXED
-**Location:** src/lexer.ts:101-108
-**Performance Impact:** Creates new RegExp on every iteration
-**Fix:** Pre-compile regex patterns
-
-### 9. ⚠️ Unreachable Break Statements
-**Status:** UNKNOWN
-**Check:** Search for `return` followed by `break`
-
-### 10. ⚠️ Inconsistent Error Handling
-**Status:** PARTIALLY FIXED
-**Location:** src/parser.ts:84-85
-**Current:**
-```typescript
-console.error(token)
-throw new Error(`Parse Error: Unexpected root level token`);
-```
-**Better:**
-```typescript
-throw new Error(`Parse Error: Unexpected root level token type "${token.type}"`)
-```
-
-### 12. ⚠️ Unused Instance Variables
-**Status:** UNKNOWN - Related to #7
-**Check:** src/slashdown.ts for unused lexer/parser instances
-
-### 13. ⚠️ Warning Instead of Error
-**Status:** UNKNOWN
-**Check:** src/slashdown.ts for console.warn usage
 
 ---
 
@@ -159,21 +143,20 @@ throw new Error(`Parse Error: Unexpected root level token type "${token.type}"`)
 - Maximum depth protection
 - Malformed indentation handling
 
-### 24. No Coverage Reporting
-**Status:** NOT FIXED
-**Required:** Add coverage scripts and thresholds
+### 24. ✅ Coverage Reporting
+**Status:** FIXED
+**Added:** test:coverage script in package.json
+**Current Coverage:** 99.56% statements, 90.76% branches, 100% functions
 
 ---
 
 ## Summary
 
-**Fixed:** 8 issues ✅
-**Needs Attention:** 6 issues ⚠️
-**Still TODO:** 10 issues 📋
+**Fixed:** 16 issues ✅
+**Still TODO:** 8 issues 📋
 
 **Priority for Next Steps:**
-1. 🔴 **Security:** HTML sanitization (#5)
-2. 🔴 **Security:** Input validation (#6)
-3. 🟡 **Performance:** Regex recompilation (#8)
-4. 🟡 **Code Quality:** Error handling improvements (#10)
-5. 🟢 **Maintenance:** Update dependencies (#14)
+1. 🔴 **Security:** Input validation (#6)
+2. 🟢 **Maintenance:** Update dependencies (#14)
+3. 🟢 **Documentation:** JSDoc comments (#17)
+4. 🟢 **DX:** Configuration options (#20)
