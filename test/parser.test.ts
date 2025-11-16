@@ -3,13 +3,14 @@ import type { SD } from '../src/types'
 import { Parser } from "../src/parser"
 import { dedent } from './utils'
 
-test('parser returns an array when given valid input', () => {
+test('parser returns a Root node when given valid input', () => {
   const tokens: SD.Token[] = [
     { type: 'Tag', content: 'div', indent: 0, line: 1, column: 1 },
   ]
 
   const ast = new Parser( tokens ).ast();
-  expect( ast.length ).toBe(1)
+  expect( ast.type ).toBe('root')
+  expect( ast.children.length ).toBe(1)
 })
 
 test('parser rejects unexpected top level token', () => {
@@ -63,32 +64,21 @@ test("markdown only", ()=>{
     endColumn: 16
   }] ).ast();
 
-  expect( ast ).toStrictEqual([
-    {
-      type: 'Markdown',
-      content: dedent`
-        # This is a markdown block
-
-        Here is some text.
-        - and
-        - a
-        - list
-
-        More text here.
-      `,
-      position: {
-        start: { line: 1, column: 1 },
-        end: { line: 9, column: 16 }
-      }
-    }
-  ])
+  expect( ast.type ).toBe('root')
+  expect( ast.children.length ).toBe(4) // heading, paragraph, list, paragraph
+  expect( ast.children[0].type ).toBe('heading')
+  expect( ast.children[1].type ).toBe('paragraph')
+  expect( ast.children[2].type ).toBe('list')
+  expect( ast.children[3].type ).toBe('paragraph')
 })
 
 describe("Tag properties", ()=> {
   test('Parser coerces blank tags to divs', () => {
     const blankTagToken: SD.Token = { type: "Tag", content: "", indent: 0, line: 1, column: 1 }
-    const firstNode = new Parser( [blankTagToken] ).ast()[0]
+    const ast = new Parser( [blankTagToken] ).ast()
+    const firstNode = ast.children[0]
 
+    expect(firstNode.type).toBe("slashdownTag")
     expect(firstNode.tagName).toBe("div");
   })
 
@@ -100,8 +90,10 @@ describe("Tag properties", ()=> {
       { type: "Class", content: "bg-red-500", indent: 0, line: 1, column: 25 },
     ]
 
-    const tagNode = new Parser( tokens ).ast()[0]
+    const ast = new Parser( tokens ).ast()
+    const tagNode = ast.children[0]
 
+    expect( tagNode.type ).toBe("slashdownTag")
     expect( tagNode.tagName ).toBe("header")
     expect( tagNode.classes ).toStrictEqual(["font-lg", "bg-red-500"])
     expect( tagNode.ids ).toStrictEqual(["header"])
@@ -114,8 +106,10 @@ describe("Tag properties", ()=> {
       { type: "Attribute", content: 'type="text"', indent: 0, line: 1, column: 24 },
     ]
 
-    const tagNode = new Parser( tokens ).ast()[0]
+    const ast = new Parser( tokens ).ast()
+    const tagNode = ast.children[0]
 
+    expect( tagNode.type ).toBe("slashdownTag")
     expect( tagNode.attributes ).toStrictEqual({
       "data-foo": "bar",
       type: "text"
@@ -124,12 +118,14 @@ describe("Tag properties", ()=> {
 
   test('boolean attributes', () => {
     const tokens: SD.Token[] = [
-      { type: "Tag", content: "input", indent: 0, line: 1, column: 1 },
+      { type: "Tag", content: "input", indent: 0, line: 1, column: 8 },
       { type: "Attribute", content: "autofocus", indent: 0, line: 1, column: 8 },
     ]
 
-    const tagNode = new Parser( tokens ).ast()[0]
+    const ast = new Parser( tokens ).ast()
+    const tagNode = ast.children[0]
 
+    expect( tagNode.type ).toBe("slashdownTag")
     expect( tagNode.attributes ).toStrictEqual({
       autofocus: true
     })
@@ -159,23 +155,27 @@ describe('longer doc', () => {
   const ast = new Parser(tokens).ast()
 
   test('correctly manages hierarchy and children', () => {
-    expect(ast.length).toBe(2)
+    expect(ast.type).toBe('root')
+    expect(ast.children.length).toBe(2)
 
-    const section = ast[0]
-    const footer = ast[1]
+    const section = ast.children[0]
+    const footer = ast.children[1]
 
     // Section
+    expect(section.type).toBe('slashdownTag')
     expect(section.tagName).toBe('section')
     expect(section.attributes["foo"]).toBe("bar")
     expect(section.children.length).toBe(3)
 
     // Footer
+    expect(footer.type).toBe('slashdownTag')
     expect(footer.tagName).toBe('footer')
     expect(footer.children.length).toBe(1)
-    expect(footer.children[0].content).toBe('Goodnight Moon.')
+    expect(footer.children[0].type).toBe('text')
+    expect(footer.children[0].value).toBe('Goodnight Moon.')
 
     const h1 = section.children[0]
-    expect(h1.type).toBe('Tag')
+    expect(h1.type).toBe('slashdownTag')
     expect(h1.tagName).toBe('h1')
     expect(h1.children.length).toBe(1)
   })

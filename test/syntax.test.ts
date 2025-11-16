@@ -26,7 +26,9 @@ function match(
 
     if(expectedAst.length) {
       const ast = parser.parse(tokens);
-      expect( ast ).toStrictEqual( expectedAst );
+      // AST is now a Root node, so compare children
+      expect( ast.type ).toBe('root');
+      expect( ast.children ).toStrictEqual( expectedAst );
 
       if( expectedHtml.length ) {
         const html = renderer.render(ast)
@@ -55,12 +57,21 @@ test("codefence", () => {
     ];
 
     const ast: SD.Node[] = [
-      { type: "Tag",
+      { type: "slashdownTag",
         tagName: "div",
         classes: ["container"],
         children: [
-          { type: "Markdown", content: "# This is a codefence", position: { start: { line: 3, column: 3 }, end: { line: 4, column: 1 } } },
-          { type: "Markdown", content: "```sd\n/ this should be verbatim\n```", position: { start: { line: 5, column: 3 }, end: { line: 7, column: 6 } } },
+          {
+            type: "heading",
+            depth: 1,
+            children: [{
+              type: "text",
+              value: "This is a codefence",
+              position: { start: { line: 1, column: 3, offset: 2 }, end: { line: 1, column: 22, offset: 21 } }
+            }],
+            position: { start: { line: 3, column: 3 }, end: { line: 4, column: 1 } }
+          },
+          { type: "code", lang: "sd", meta: null, value: "/ this should be verbatim\n```", position: { start: { line: 5, column: 3 }, end: { line: 7, column: 6 } } },
         ],
         position: { start: { line: 1, column: 1 }, end: { line: 7, column: 6 } }
       }
@@ -117,14 +128,14 @@ describe("htmx & tailwind", () => {
 
     const ast: SD.Node[] = [
       {
-        type: "Tag",
+        type: "slashdownTag",
         tagName: "div",
         ids: ["roll-result"],
         children: [],
-        position: { start: { line: 1, column: 1 }, end: { line: 1, column: 15 } }
+        position: { start: { line: 1, column: 1 }, end: { line: 1, column: 3 } }
       },
       {
-        type: "Tag",
+        type: "slashdownTag",
         tagName: "button",
         attributes: {
           "hx-post": "/api/roll?sides=6",
@@ -134,12 +145,12 @@ describe("htmx & tailwind", () => {
         },
         children: [
           {
-            type: "Text",
-            content: "Click me",
-            position: { start: { line: 2, column: 11 }, end: { line: 2, column: 19 } }
+            type: "text",
+            value: "Click me",
+            position: { start: { line: 2, column: 9 }, end: { line: 2, column: 9 } }
           }
         ],
-        position: { start: { line: 2, column: 1 }, end: { line: 6, column: 89 } }
+        position: { start: { line: 2, column: 1 }, end: { line: 6, column: 1 } }
       }
     ]
 

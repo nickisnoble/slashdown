@@ -1,3 +1,6 @@
+import type { Node as UnistNode, Position, Point } from 'unist'
+import type { Content as MdastContent, Root as MdastRoot } from 'mdast'
+
 const TOKEN_TYPES = [
   "Tag",
   "Attribute",
@@ -7,7 +10,6 @@ const TOKEN_TYPES = [
   "Markdown",
   "CodeFence"
 ] as const;
-const NODE_TYPES = ["Tag", "Text", "Markdown"] as const;
 
 export declare namespace SD {
   // Tokens
@@ -22,48 +24,63 @@ export declare namespace SD {
     endColumn?: number,
   }
 
-  // Unist-compatible position types
-  type Point = {
-    line: number,      // 1-indexed line number
-    column: number,    // 1-indexed column number
-    offset?: number,   // 0-indexed character offset (optional)
+  // Re-export unist position types for convenience
+  export type { Point, Position }
+
+  // SlashDown-specific nodes
+
+  /**
+   * SlashDown tag node (like <div>, <button>, etc.)
+   * Can contain both slashdown tags and mdast content as children
+   */
+  interface SlashDownTag extends UnistNode {
+    type: 'slashdownTag'
+    tagName: string
+    attributes?: { [key: string]: string | boolean }
+    classes?: string[]
+    ids?: string[]
+    children: (SlashDownTag | MdastContent)[]
+    position?: Position
+    data?: any
   }
 
-  type Position = {
-    start: Point,
-    end: Point,
+  /**
+   * Root node containing the entire document
+   */
+  interface Root extends UnistNode {
+    type: 'root'
+    children: (SlashDownTag | MdastContent)[]
+    position?: Position
+    data?: any
   }
 
-  // Base Node type conforming to unist spec
-  type NodeType = typeof NODE_TYPES[number];
-  type Node = {
-    type: NodeType,
-    position?: Position,  // Optional position info (unist spec)
-    data?: any,           // Optional ecosystem-specific data (unist spec)
-    [key: string]: any
+  /**
+   * Union type of all slashdown-specific node types
+   */
+  type SlashDownNode = Root | SlashDownTag
+
+  /**
+   * The complete AST type (root node)
+   */
+  type Ast = Root
+
+  /**
+   * Configuration for markdown parsing
+   */
+  interface MarkdownHandlerOptions {
+    /**
+     * Micromark extensions to use
+     */
+    extensions?: any[]
+    /**
+     * MDAST extensions to use
+     */
+    mdastExtensions?: any[]
   }
 
-  type TextNode = Node & {
-    type: "Text",
-    content: string,
-  }
-
-  type MarkdownNode = Node & {
-    type: "Markdown",
-    content: string,
-  }
-
-  type TagNode = Node & {
-    type: "Tag",
-    tagName: string,
-    attributes?: { [key: string]: string | boolean },
-    classes?: string[],
-    ids?: string[],
-    children: Node[]
-  }
-
-  type Ast = Node[]
-
+  /**
+   * Renderer interface
+   */
   interface Renderer {
     render(input: Ast): string;
   }

@@ -1,17 +1,27 @@
 import type { SD } from "./types"
+import type { Content as MdastContent } from 'mdast'
+import { MarkdownHandler } from './markdown-handler'
 
 const INDENTATION_IMMUNE_TOKENS: Partial<SD.TokenType>[] = ["Attribute", "Id", "Class", "Text"];
 const isNonIndenting = ( tokenType: SD.TokenType ): boolean => INDENTATION_IMMUNE_TOKENS.includes( tokenType )
 
 export class Parser {
   tokens: SD.Token[]
-  private tree: SD.Node[]
+  private root: SD.Root
   private cursor: number
+  private markdownHandler: MarkdownHandler
 
-  constructor( tokens: SD.Token[] = [] ) {
+  constructor(
+    tokens: SD.Token[] = [],
+    markdownOptions?: SD.MarkdownHandlerOptions
+  ) {
     this.tokens = tokens
-    this.tree = []
+    this.root = {
+      type: 'root',
+      children: []
+    }
     this.cursor = 0
+    this.markdownHandler = new MarkdownHandler(markdownOptions)
   }
 
   private createPosition(startToken: SD.Token, endToken?: SD.Token): SD.Position {
@@ -28,31 +38,45 @@ export class Parser {
     };
   }
 
-  ast() {
-    if (this.tree.length)
-      return this.tree;
-    else {
+  ast(): SD.Ast {
+    if (this.root.children.length > 0) {
+      return this.root;
+    } else {
       return this.parse();
     }
   }
 
-  parse( tokens: SD.Token[] = this.tokens ): any[] {
+  parse( tokens: SD.Token[] = this.tokens ): SD.Ast {
     // reset instance
     this.tokens = tokens;
-    this.tree = [];
+    this.root = {
+      type: 'root',
+      children: []
+    };
+    this.cursor = 0;
+
+    // Collect all tokens for position tracking
+    const allTokens: SD.Token[] = []
 
     // Top loop
     while (this.remaining()) {
       const token: SD.Token = this.consumeNext();
+      allTokens.push(token)
 
       switch (token.type) {
         case "Tag":
           const tag = this.parseTag(token)
-          this.tree.push(tag);
+          this.root.children.push(tag);
           break;
         case "Markdown":
-        case "CodeFence": // CodeFences *are* markdown
-          this.tree.push(this.parseMarkdown(token));
+          // Parse markdown into mdast nodes
+          const mdastNodes = this.parseMarkdown(token)
+          this.root.children.push(...mdastNodes);
+          break;
+        case "CodeFence":
+          // Parse code fence into mdast code node
+          const codeNode = this.parseCodeFence(token)
+          this.root.children.push(codeNode);
           break;
 
         // Top level items should only be Tags or Markdown
@@ -62,7 +86,15 @@ export class Parser {
       }
     }
 
-    return this.tree;
+    // Set position on root node if we have tokens
+    if (allTokens.length > 0) {
+      this.root.position = this.createPosition(
+        allTokens[0],
+        allTokens[allTokens.length - 1]
+      )
+    }
+
+    return this.root;
   }
 
   private remaining(): boolean {
@@ -79,15 +111,14 @@ export class Parser {
     return token;
   }
 
-  private parseTag(startTag: SD.Token): SD.TagNode {
+  private parseTag(startTag: SD.Token): SD.SlashDownTag {
     let tagName = startTag.content;
 
     // handle `/` shorthand
-    // TODO: Maybe move this to a rendering strategy or options object to set a "default" component
     tagName = tagName === "" ? "div" : tagName;
 
-    const tag: SD.TagNode = {
-      type: "Tag",
+    const tag: SD.SlashDownTag = {
+      type: "slashdownTag",
       tagName,
       children: []
     };
@@ -104,8 +135,15 @@ export class Parser {
 
         switch (token.type) {
           case "Markdown":
+            // Parse markdown into mdast nodes and add as children
+            const mdastNodes = this.parseMarkdown(token)
+            tag.children.push(...mdastNodes);
+            break;
+
           case "CodeFence":
-            tag.children.push(this.parseMarkdown(token));
+            // Parse code fence into mdast code node
+            const codeNode = this.parseCodeFence(token)
+            tag.children.push(codeNode);
             break;
 
           case "Tag":
@@ -138,11 +176,11 @@ export class Parser {
             break;
 
           case "Text":
-            const textNode: SD.TextNode = {
-              type: "Text",
-              content: token.content,
-              position: this.createPosition(token)
-            };
+            // Parse inline text as mdast text node
+            const textNode = this.markdownHandler.parseInlineText(
+              token.content,
+              this.createPosition(token)
+            )
             tag.children.push(textNode);
             break;
         }
@@ -157,11 +195,13 @@ export class Parser {
     return tag;
   }
 
-  private parseMarkdown(token: SD.Token):  SD.MarkdownNode {
-    return {
-      type: "Markdown",
-      content: token.content,
-      position: this.createPosition(token)
-    };
+  private parseMarkdown(token: SD.Token): MdastContent[] {
+    const position = this.createPosition(token)
+    return this.markdownHandler.parse(token.content, position)
+  }
+
+  private parseCodeFence(token: SD.Token): MdastContent {
+    const position = this.createPosition(token)
+    return this.markdownHandler.parseCodeFence(token.content, position)
   }
 }
