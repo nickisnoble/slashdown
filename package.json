@@ -1,25 +1,58 @@
 {
   "name": "slashdown",
-  "version": "0.0.5",
+  "version": "0.0.6",
+  "description": "A lightweight markup language between Markdown and MDX - perfect for HTMX, Tailwind, and Alpine.js",
   "type": "module",
   "main": "dist/slashdown.js",
   "types": "src/slashdown.d.ts",
   "license": "MIT",
+  "keywords": [
+    "markdown",
+    "markup",
+    "parser",
+    "html",
+    "htmx",
+    "tailwind",
+    "alpine",
+    "template",
+    "syntax"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nickisnoble/slashdown.git"
+  },
+  "bugs": {
+    "url": "https://github.com/nickisnoble/slashdown/issues"
+  },
+  "homepage": "https://github.com/nickisnoble/slashdown#readme",
+  "author": "Nick Noble",
+  "files": [
+    "dist",
+    "src",
+    "README.md",
+    "LICENSE"
+  ],
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
     "test": "vitest",
+    "test:coverage": "vitest --coverage",
+    "test:ui": "vitest --ui",
     "prepublishOnly": "npm run build"
   },
   "devDependencies": {
-    "@vitest/coverage-v8": "^0.34.4",
-    "typescript": "^5.0.2",
-    "vite": "^4.4.5",
-    "vitest": "^0.34.1"
+    "@vitest/coverage-v8": "^2.1.8",
+    "@vitest/ui": "^2.1.8",
+    "typescript": "^5.7.2",
+    "vite": "^6.0.3",
+    "vitest": "^2.1.8"
   },
   "dependencies": {
-    "micromark": "^4.0.0",
+    "micromark": "^4.0.1",
     "micromark-extension-gfm": "^3.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
   }
 }

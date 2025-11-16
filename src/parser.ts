@@ -3,18 +3,30 @@ import type { SD } from "./types"
 const INDENTATION_IMMUNE_TOKENS: Partial<SD.TokenType>[] = ["Attribute", "Id", "Class", "Text"];
 const isNonIndenting = ( tokenType: SD.TokenType ): boolean => INDENTATION_IMMUNE_TOKENS.includes( tokenType )
 
+export interface ParserOptions {
+  defaultTag?: string;
+  maxDepth?: number;
+}
+
 export class Parser {
   tokens: SD.Token[]
   private tree: SD.Node[]
   private cursor: number
+  private depth: number
+  private options: ParserOptions
 
-  constructor( tokens: SD.Token[] = [] ) {
+  constructor( tokens: SD.Token[] = [], options: ParserOptions = {} ) {
     this.tokens = tokens
     this.tree = []
     this.cursor = 0
+    this.depth = 0
+    this.options = {
+      defaultTag: options.defaultTag || 'div',
+      maxDepth: options.maxDepth || 100
+    }
   }
 
-  ast() {
+  ast(): SD.Node[] {
     if (this.tree.length)
       return this.tree;
     else {
@@ -22,10 +34,12 @@ export class Parser {
     }
   }
 
-  parse( tokens: SD.Token[] = this.tokens ): any[] {
+  parse( tokens: SD.Token[] = this.tokens ): SD.Node[] {
     // reset instance
     this.tokens = tokens;
     this.tree = [];
+    this.cursor = 0;
+    this.depth = 0;
 
     // Top loop
     while (this.remaining()) {
@@ -43,8 +57,7 @@ export class Parser {
 
         // Top level items should only be Tags or Markdown
         default:
-          console.error(token)
-          throw new Error(`Parse Error: Unexpected root level token`);
+          throw new Error(`Parse Error: Unexpected root level token type "${token.type}" at position ${this.cursor - 1}`);
       }
     }
 
@@ -66,11 +79,16 @@ export class Parser {
   }
 
   private parseTag(startTag: SD.Token): SD.TagNode {
+    // Check max depth to prevent stack overflow
+    this.depth++;
+    if (this.depth > this.options.maxDepth!) {
+      throw new Error(`Parse Error: Maximum nesting depth of ${this.options.maxDepth} exceeded. This may indicate infinite recursion.`);
+    }
+
     let tagName = startTag.content;
 
-    // handle `/` shorthand
-    // TODO: Maybe move this to a rendering strategy or options object to set a "default" component
-    tagName = tagName === "" ? "div" : tagName;
+    // handle `/` shorthand - use configurable default tag
+    tagName = tagName === "" ? this.options.defaultTag! : tagName;
 
     const tag: SD.TagNode = {
       type: "Tag",
@@ -131,6 +149,7 @@ export class Parser {
       }
     }
 
+    this.depth--;
     return tag;
   }
 

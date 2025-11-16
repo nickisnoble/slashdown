@@ -11,13 +11,10 @@ export default class HTMLRenderer implements SD.Renderer {
     switch (node.type) {
       case "Tag":
         return this.renderTag(node as SD.TagNode);
-        break;
       case "Markdown":
         return this.renderMarkdown(node as SD.MarkdownNode);
-        break;
       case "Text":
-        return node.content;
-        break;
+        return this.escapeHtml(node.content);
       default:
         throw new Error(`Unknown node type: ${node.type}`);
     }
@@ -30,18 +27,48 @@ export default class HTMLRenderer implements SD.Renderer {
   }
 
   private renderTag(node: SD.TagNode): string {
-    let attributes = this.unpackAttributes(node);
+    const attributes = this.unpackAttributes(node);
     const children = node.children.map(this.renderNode).join("");
     return `<${node.tagName}${attributes}>${children}</${node.tagName}>`;
   }
 
   private unpackAttributes(node: SD.TagNode): string {
-    let attributes: string[] = []
-    if (node.ids) attributes.push(`id="${node.ids.join(" ")}"`);
-    if (node.classes) attributes.push(`class="${node.classes.join(" ")}"`);
-    if (node.attributes) attributes = Object.entries(attributes)
-                                            .map(([key, value]) => `${key}="${value}"`);
+    const attributes: string[] = []
+
+    if (node.ids) {
+      attributes.push(`id="${this.escapeHtml(node.ids.join(" "))}"`);
+    }
+
+    if (node.classes) {
+      attributes.push(`class="${this.escapeHtml(node.classes.join(" "))}"`);
+    }
+
+    if (node.attributes) {
+      const attrStrings = Object.entries(node.attributes).map(([key, value]) => {
+        // Boolean attributes (disabled, readonly, etc.)
+        if (value === true) {
+          return key;
+        }
+        // String attributes with proper escaping
+        return `${key}="${this.escapeHtml(String(value))}"`;
+      });
+      attributes.push(...attrStrings);
+    }
 
     return attributes.length ? " " + attributes.join(" ") : "";
+  }
+
+  /**
+   * Escape HTML special characters to prevent XSS
+   */
+  private escapeHtml(text: string): string {
+    const htmlEscapes: { [key: string]: string } = {
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      '"': '&quot;',
+      "'": '&#39;'
+    };
+    return text.replace(/[&<>"']/g, char => htmlEscapes[char]);
   }
 }

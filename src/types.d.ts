@@ -19,18 +19,25 @@ export declare namespace SD {
   }
 
   // Nodes
+  type NodeType = typeof NODE_TYPES[number];
+
   type Node = {
     type: NodeType,
     [key: string]: any
   }
 
   type TextNode = Node & {
+    type: "Text",
     content: string,
   }
 
-  type MarkdownNode = TextNode
+  type MarkdownNode = Node & {
+    type: "Markdown",
+    content: string,
+  }
 
   type TagNode = Node & {
+    type: "Tag",
     tagName: string,
     attributes?: { [key: string]: string | boolean },
     classes?: string[],
@@ -43,4 +50,19 @@ export declare namespace SD {
   interface Renderer {
     render(input: Ast): string;
   }
+
+  // Configuration options
+  interface SlashdownOptions {
+    src?: string;
+    renderer?: new(options?: RendererOptions) => Renderer;
+    defaultTag?: string;
+    maxDepth?: number;
+  }
+
+  interface RendererOptions {
+    escapeHtml?: boolean;
+  }
 }
+
+// Re-export types for external use
+export type { SD }

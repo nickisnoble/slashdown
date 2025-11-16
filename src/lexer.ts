@@ -83,19 +83,21 @@ export class Lexer {
         }
       } while (matchFound);
 
+      // Cache compiled full-line patterns for performance
+      const fullLinePatterns = {
+        Class: new RegExp((patterns.Class.source + "$").replace("$$", "$")),
+        Id: new RegExp((patterns.Id.source + "$").replace("$$", "$")),
+        Attribute: new RegExp((patterns.Attribute.source + "$").replace("$$", "$")),
+        Text: new RegExp((patterns.Text.source + "$").replace("$$", "$"))
+      };
+
       let nextLine = lookahead(1)
       while (!!nextLine && !isBlank(nextLine) && !isTagStart(nextLine)) {
         nextLine = nextLine.trim()
         let matchFound = false;
 
         typeLoop: for (const type of ["Class", "Id", "Attribute", "Text"] as const) {
-          const match = nextLine.match(
-            // TODO: Support multiple selectors on own line, eg #header.flex.justify-between
-            new RegExp(
-              (patterns[type].source + "$") // check ENTIRE line
-              .replace("$$", "$") // (some regex already check for line-end)
-            )
-          );
+          const match = nextLine.match(fullLinePatterns[type]);
 
           if (match) {
             tokenList.push({
