@@ -57,7 +57,7 @@ test("codefence", () => {
     ];
 
     const ast: SD.Node[] = [
-      { type: "slashdownTag",
+      { type: "element",
         tagName: "div",
         classes: ["container"],
         children: [
@@ -128,14 +128,14 @@ describe("htmx & tailwind", () => {
 
     const ast: SD.Node[] = [
       {
-        type: "slashdownTag",
+        type: "element",
         tagName: "div",
         ids: ["roll-result"],
         children: [],
         position: { start: { line: 1, column: 1 }, end: { line: 1, column: 3 } }
       },
       {
-        type: "slashdownTag",
+        type: "element",
         tagName: "button",
         attributes: {
           "hx-post": "/api/roll?sides=6",

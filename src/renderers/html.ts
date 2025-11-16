@@ -8,16 +8,16 @@ export default class HTMLRenderer implements SD.Renderer {
     return ast.children.map(this.renderNode).join("");
   }
 
-  private renderNode = (node: SD.SlashDownTag | MdastContent): string => {
-    if (node.type === 'slashdownTag') {
-      return this.renderSlashDownTag(node);
+  private renderNode = (node: SD.Element | MdastContent): string => {
+    if (node.type === 'element') {
+      return this.renderElement(node);
     } else {
       // It's an mdast node - convert to hast then HTML
       return this.renderMdastNode(node);
     }
   }
 
-  private renderSlashDownTag(node: SD.SlashDownTag): string {
+  private renderElement(node: SD.Element): string {
     const attributes = this.unpackAttributes(node);
     const children = node.children.map(this.renderNode).join("");
     return `<${node.tagName}${attributes}>${children}</${node.tagName}>`;
@@ -33,7 +33,7 @@ export default class HTMLRenderer implements SD.Renderer {
     return toHtml(hast);
   }
 
-  private unpackAttributes(node: SD.SlashDownTag): string {
+  private unpackAttributes(node: SD.Element): string {
     let attributes: string[] = []
     if (node.ids) attributes.push(`id="${node.ids.join(" ")}"`);
     if (node.classes) attributes.push(`class="${node.classes.join(" ")}"`);

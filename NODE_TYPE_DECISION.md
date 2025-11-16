@@ -1,9 +1,9 @@
-# Node Type Decision: `slashdownTag` vs `element` vs tag name
+# Node Type Decision: `element` vs `element` vs tag name
 
 ## The Question
 
-Should SlashDown nodes use:
-1. **Generic type + tagName**: `{ type: 'slashdownTag', tagName: 'div' }` (current)
+Should Slashdown nodes use:
+1. **Generic type + tagName**: `{ type: 'element', tagName: 'div' }` (current)
 2. **HAST-compatible**: `{ type: 'element', tagName: 'div' }`
 3. **Tag name as type**: `{ type: 'div' }`
 
@@ -35,10 +35,10 @@ Should SlashDown nodes use:
 
 **Key insight**: MDAST uses **specific types** because markdown constructs have **different properties**.
 
-### Current SlashDown
+### Current Slashdown
 ```javascript
 {
-  type: 'slashdownTag',   // ← All SlashDown tags use this
+  type: 'element',   // ← All Slashdown tags use this
   tagName: 'div',         // ← Specific element
   classes: ['container'], // ← Our custom format
   ids: ['main'],
@@ -49,11 +49,11 @@ Should SlashDown nodes use:
 
 ## Options Analysis
 
-### Option 1: Keep `type: 'slashdownTag'` (Current) ✅
+### Option 1: Keep `type: 'element'` (Current) ✅
 
 **Pros:**
-- Clear distinction between SlashDown nodes and mdast/hast nodes
-- Can use `visit(tree, 'slashdownTag', ...)` to find all SlashDown tags
+- Clear distinction between Slashdown nodes and mdast/hast nodes
+- Can use `visit(tree, 'element', ...)` to find all Slashdown tags
 - Maintains our ergonomic `classes` and `ids` arrays
 - Easy to convert to hast when needed
 
@@ -65,8 +65,8 @@ Should SlashDown nodes use:
 ```javascript
 import { visit } from 'unist-util-visit'
 
-// Find all SlashDown tags
-visit(tree, 'slashdownTag', (node) => {
+// Find all Slashdown tags
+visit(tree, 'element', (node) => {
   if (node.tagName === 'button') {
     // Do something with buttons
   }
@@ -88,7 +88,7 @@ visit(tree, 'heading', (node) => {
 - Could use hast utilities directly
 
 **Cons:**
-- Ambiguity: Is it hast or SlashDown?
+- Ambiguity: Is it hast or Slashdown?
 - Our `classes`/`ids` arrays conflict with hast's `properties` format
 - Would need to convert to hast properties structure
 
@@ -117,9 +117,9 @@ visit(tree, 'heading', (node) => {
 
 **Cons:**
 - Conflicts with potential mdast extensions
-- Can't distinguish SlashDown tags from other nodes
+- Can't distinguish Slashdown tags from other nodes
 - TypeScript would need to know all HTML tag names
-- Can't use `visit(tree, 'div', ...)` to find just SlashDown divs
+- Can't use `visit(tree, 'div', ...)` to find just Slashdown divs
 
 **Example:**
 ```javascript
@@ -134,19 +134,19 @@ visit(tree, 'heading', (node) => {
 
 ---
 
-## Recommendation: Keep `type: 'slashdownTag'` + Add HAST Converter
+## Recommendation: Keep `type: 'element'` + Add HAST Converter
 
 ### Why This Works Best
 
-1. **Clear Semantics**: In a hybrid tree with both SlashDown and mdast nodes, we need clear distinction
+1. **Clear Semantics**: In a hybrid tree with both Slashdown and mdast nodes, we need clear distinction
 2. **Ergonomic API**: Our `classes` and `ids` arrays are more ergonomic than hast's `properties`
 3. **Easy Conversion**: We can convert to hast when needed for the unified pipeline
 
 ### Proposed Pipeline
 
 ```javascript
-// SlashDown → HAST → HTML
-slashdownTag
+// Slashdown → HAST → HTML
+element
   ↓ (slast-to-hast converter)
 hast element
   ↓ (hast-to-html)
@@ -167,7 +167,7 @@ HTML string
 import type { Element as HastElement } from 'hast'
 import type { SD } from './types'
 
-export function slashdownTagToHast(node: SD.SlashDownTag): HastElement {
+export function elementToHast(node: SD.SlashdownTag): HastElement {
   return {
     type: 'element',
     tagName: node.tagName,
@@ -177,8 +177,8 @@ export function slashdownTagToHast(node: SD.SlashDownTag): HastElement {
       ...node.attributes
     },
     children: node.children.map(child =>
-      child.type === 'slashdownTag'
-        ? slashdownTagToHast(child)
+      child.type === 'element'
+        ? elementToHast(child)
         : mdastToHast(child)  // mdast nodes use existing converter
     )
   }
@@ -194,10 +194,10 @@ Some unified processors use `type: 'html'` for raw HTML in markdown. But this do
 
 ## Conclusion
 
-**Keep `type: 'slashdownTag'`** because:
+**Keep `type: 'element'`** because:
 
 1. ✅ Clear semantics in hybrid AST
-2. ✅ Can use unist utilities to find SlashDown vs mdast nodes
+2. ✅ Can use unist utilities to find Slashdown vs mdast nodes
 3. ✅ Maintains ergonomic `classes` and `ids` arrays
 4. ✅ Easy to convert to hast when needed
 5. ✅ Follows the pattern: specific type for specific structure
@@ -208,7 +208,7 @@ The current implementation is actually the right choice! We just need to add con
 
 ## Implementation Status
 
-- [x] `type: 'slashdownTag'` implemented
+- [x] `type: 'element'` implemented
 - [x] Hybrid AST with mdast nodes
 - [ ] `slast-to-hast` converter (future)
 - [ ] `hast-to-slast` converter (future)

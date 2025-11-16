@@ -1,6 +1,6 @@
-# SlashDown + Unified Integration Architecture
+# Slashdown + Unified Integration Architecture
 
-This document outlines the technical architecture for integrating SlashDown with the unified ecosystem.
+This document outlines the technical architecture for integrating Slashdown with the unified ecosystem.
 
 ## Table of Contents
 
@@ -33,7 +33,7 @@ Input String
     ↓
 [Lexer] → Tokens
     ↓
-[Parser] → slast (SlashDown nodes)
+[Parser] → slast (Slashdown nodes)
     ↓
 [Markdown Handler] → Parse markdown strings → mdast nodes
     ↓
@@ -83,17 +83,17 @@ slashdown/
 
 ### Hybrid AST Approach
 
-**slast** = SlashDown AST that **contains** mdast nodes
+**slast** = Slashdown AST that **contains** mdast nodes
 
 ```typescript
-// SlashDown-specific nodes
-type SlashDownTag = {
-  type: 'slashdownTag'      // Distinguishable from HTML tags
+// Slashdown-specific nodes
+type SlashdownTag = {
+  type: 'element'      // Distinguishable from HTML tags
   tagName: string
   attributes?: Record<string, string | boolean>
   classes?: string[]
   ids?: string[]
-  children: (SlashDownTag | MdastNode)[]  // ✅ Can contain mdast!
+  children: (SlashdownTag | MdastNode)[]  // ✅ Can contain mdast!
   position?: Position
   data?: any
 }
@@ -118,9 +118,9 @@ export declare namespace Slast {
     data?: any
   }
 
-  // SlashDown Tag node
+  // Slashdown Tag node
   interface Tag extends Node {
-    type: 'slashdownTag'
+    type: 'element'
     tagName: string
     attributes?: Record<string, string | boolean>
     classes?: string[]
@@ -184,7 +184,7 @@ export declare namespace Slast {
 {
   "type": "root",
   "children": [{
-    "type": "slashdownTag",
+    "type": "element",
     "tagName": "article",
     "classes": ["prose"],
     "children": [
@@ -209,7 +209,7 @@ export declare namespace Slast {
         ]
       },
       {
-        "type": "slashdownTag",
+        "type": "element",
         "tagName": "button",
         "ids": ["cta"],
         "children": [
@@ -396,19 +396,19 @@ export declare namespace SD {
   // Position types (from unist)
   export type { Point, Position }
 
-  // SlashDown-specific nodes
-  interface SlashDownTag extends UnistNode {
-    type: 'slashdownTag'
+  // Slashdown-specific nodes
+  interface SlashdownTag extends UnistNode {
+    type: 'element'
     tagName: string
     attributes?: Record<string, string | boolean>
     classes?: string[]
     ids?: string[]
-    children: (SlashDownTag | MdastContent)[]
+    children: (SlashdownTag | MdastContent)[]
   }
 
   interface Root extends UnistNode {
     type: 'root'
-    children: (SlashDownTag | MdastContent)[]
+    children: (SlashdownTag | MdastContent)[]
   }
 
   // Main AST type
@@ -434,8 +434,8 @@ export default class HTMLRenderer implements SD.Renderer {
     return ast.children.map(this.renderNode).join('')
   }
 
-  private renderNode = (node: SD.SlashDownTag | MdastContent): string => {
-    if (node.type === 'slashdownTag') {
+  private renderNode = (node: SD.SlashdownTag | MdastContent): string => {
+    if (node.type === 'element') {
       return this.renderTag(node)
     } else {
       // It's an mdast node - convert to hast then HTML
@@ -444,7 +444,7 @@ export default class HTMLRenderer implements SD.Renderer {
     }
   }
 
-  private renderTag(node: SD.SlashDownTag): string {
+  private renderTag(node: SD.SlashdownTag): string {
     const attributes = this.unpackAttributes(node)
     const children = node.children.map(this.renderNode).join('')
     return `<${node.tagName}${attributes}>${children}</${node.tagName}>`
@@ -468,7 +468,7 @@ export interface SlashdownParseOptions {
 }
 
 /**
- * Plugin to parse SlashDown input into a slast tree
+ * Plugin to parse Slashdown input into a slast tree
  */
 export default function slashdownParse(
   this: Processor,
@@ -504,8 +504,8 @@ visit(tree, 'heading', (node) => {
   console.log(node.depth, node.children)
 })
 
-// Find all SlashDown tags
-visit(tree, 'slashdownTag', (node) => {
+// Find all Slashdown tags
+visit(tree, 'element', (node) => {
   console.log(node.tagName, node.classes)
 })
 ```
@@ -536,8 +536,8 @@ unified()
 
 ## Questions to Resolve
 
-1. **Node naming:** Should SlashDown tags be `slashdownTag` or just `tag`?
-   - **Recommendation:** `slashdownTag` to avoid conflicts with HTML `tag` nodes
+1. **Node naming:** Should Slashdown tags be `element` or just `tag`?
+   - **Recommendation:** `element` to avoid conflicts with HTML `tag` nodes
 
 2. **Text nodes:** Should inline text (`= Hello`) become mdast `text` nodes or stay as custom nodes?
    - **Recommendation:** Convert to mdast `text` nodes for consistency

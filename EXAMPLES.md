@@ -1,6 +1,6 @@
-# SlashDown Transformation Examples
+# Slashdown Transformation Examples
 
-This document shows how SlashDown integrates with the unified ecosystem for various transformations.
+This document shows how Slashdown integrates with the unified ecosystem for various transformations.
 
 ## Table of Contents
 
@@ -14,7 +14,7 @@ This document shows how SlashDown integrates with the unified ecosystem for vari
 
 ## slashdown → HTML
 
-**Use case:** Compile SlashDown to HTML for web deployment
+**Use case:** Compile Slashdown to HTML for web deployment
 
 ```javascript
 import { unified } from 'unified'
@@ -47,7 +47,7 @@ console.log(String(file))
 
 ## slashdown → Markdown
 
-**Use case:** Extract just the markdown content from SlashDown
+**Use case:** Extract just the markdown content from Slashdown
 
 ```javascript
 import { unified } from 'unified'
@@ -83,7 +83,7 @@ Made with ❤️
 
 ## markdown → slashdown
 
-**Use case:** Wrap existing markdown in SlashDown structure
+**Use case:** Wrap existing markdown in Slashdown structure
 
 ```javascript
 import { unified } from 'unified'
@@ -118,7 +118,7 @@ console.log(String(file))
 
 ## slashdown → slashdown (transforms)
 
-**Use case:** Transform SlashDown AST with plugins
+**Use case:** Transform Slashdown AST with plugins
 
 ```javascript
 import { unified } from 'unified'
@@ -160,7 +160,7 @@ console.log(String(file))
 
 ## Hybrid: slashdown + markdown → HTML
 
-**Use case:** Process markdown within SlashDown using remark plugins
+**Use case:** Process markdown within Slashdown using remark plugins
 
 ```javascript
 import { unified } from 'unified'
@@ -321,7 +321,7 @@ const processor = unified()
 ### Custom Node Types
 
 ```javascript
-// Extend SlashDown with custom node types
+// Extend Slashdown with custom node types
 import { unified } from 'unified'
 import slashdownParse from 'slashdown-parse'
 
@@ -355,7 +355,7 @@ unified()
   .use(rehypeStringify)  // hast → html
 ```
 
-### SlashDown Ecosystem
+### Slashdown Ecosystem
 ```javascript
 // slashdown → HTML
 unified()

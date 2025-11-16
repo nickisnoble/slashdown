@@ -9,7 +9,7 @@ import { dedent } from './utils'
  *
  * The new architecture should:
  * 1. Parse markdown content into mdast nodes (not strings)
- * 2. Have slashdownTag nodes that contain mdast children
+ * 2. Have element nodes that contain mdast children
  * 3. Wrap everything in a root node
  * 4. Support unist utilities for traversal
  */
@@ -64,9 +64,9 @@ describe('Hybrid AST Structure', () => {
 
     expect(ast.type).toBe('root')
 
-    // First child should be a slashdownTag
+    // First child should be an element
     const article = ast.children[0]
-    expect(article.type).toBe('slashdownTag')
+    expect(article.type).toBe('element')
     expect(article.tagName).toBe('article')
     expect(article.classes).toEqual(['prose'])
 
@@ -96,18 +96,18 @@ describe('Hybrid AST Structure', () => {
     const ast = parser.ast()
 
     const main = ast.children[0]
-    expect(main.type).toBe('slashdownTag')
+    expect(main.type).toBe('element')
     expect(main.tagName).toBe('main')
     expect(main.children).toHaveLength(2) // section + footer
 
     const section = main.children[0]
-    expect(section.type).toBe('slashdownTag')
+    expect(section.type).toBe('element')
     expect(section.tagName).toBe('section')
     expect(section.children).toHaveLength(1)
     expect(section.children[0].type).toBe('heading')
 
     const footer = main.children[1]
-    expect(footer.type).toBe('slashdownTag')
+    expect(footer.type).toBe('element')
     expect(footer.tagName).toBe('footer')
     expect(footer.children).toHaveLength(1)
     expect(footer.children[0].type).toBe('paragraph')
@@ -122,7 +122,7 @@ describe('Hybrid AST Structure', () => {
     const ast = parser.ast()
 
     const button = ast.children[0]
-    expect(button.type).toBe('slashdownTag')
+    expect(button.type).toBe('element')
     expect(button.tagName).toBe('button')
     expect(button.children).toHaveLength(1)
 
@@ -172,8 +172,8 @@ describe('Hybrid AST Structure', () => {
     // First: heading
     expect(ast.children[0].type).toBe('heading')
 
-    // Second: slashdown tag
-    expect(ast.children[1].type).toBe('slashdownTag')
+    // Second: element
+    expect(ast.children[1].type).toBe('element')
     expect(ast.children[1].tagName).toBe('button')
 
     // Third: paragraph
@@ -214,7 +214,7 @@ describe('Hybrid AST Structure', () => {
     const ast = parser.ast()
 
     const button = ast.children[0]
-    expect(button.type).toBe('slashdownTag')
+    expect(button.type).toBe('element')
     expect(button.tagName).toBe('button')
     expect(button.ids).toEqual(['submit'])
     expect(button.classes).toEqual(['primary', 'large'])

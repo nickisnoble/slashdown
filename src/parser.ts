@@ -111,14 +111,14 @@ export class Parser {
     return token;
   }
 
-  private parseTag(startTag: SD.Token): SD.SlashDownTag {
+  private parseTag(startTag: SD.Token): SD.Element {
     let tagName = startTag.content;
 
     // handle `/` shorthand
     tagName = tagName === "" ? "div" : tagName;
 
-    const tag: SD.SlashDownTag = {
-      type: "slashdownTag",
+    const tag: SD.Element = {
+      type: "element",
       tagName,
       children: []
     };

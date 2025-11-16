@@ -27,19 +27,19 @@ export declare namespace SD {
   // Re-export unist position types for convenience
   export type { Point, Position }
 
-  // SlashDown-specific nodes
+  // Slashdown-specific nodes
 
   /**
-   * SlashDown tag node (like <div>, <button>, etc.)
-   * Can contain both slashdown tags and mdast content as children
+   * Element node representing an HTML element
+   * Can contain both element nodes and mdast content as children
    */
-  interface SlashDownTag extends UnistNode {
-    type: 'slashdownTag'
+  interface Element extends UnistNode {
+    type: 'element'
     tagName: string
     attributes?: { [key: string]: string | boolean }
     classes?: string[]
     ids?: string[]
-    children: (SlashDownTag | MdastContent)[]
+    children: (Element | MdastContent)[]
     position?: Position
     data?: any
   }
@@ -49,15 +49,15 @@ export declare namespace SD {
    */
   interface Root extends UnistNode {
     type: 'root'
-    children: (SlashDownTag | MdastContent)[]
+    children: (Element | MdastContent)[]
     position?: Position
     data?: any
   }
 
   /**
-   * Union type of all slashdown-specific node types
+   * Union type of all Slashdown-specific node types
    */
-  type SlashDownNode = Root | SlashDownTag
+  type SlashdownNode = Root | Element
 
   /**
    * The complete AST type (root node)
