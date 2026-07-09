@@ -1,0 +1,77 @@
+// This is a comment
+// Example Slashdown file to test syntax highlighting
+
+/header .flex.justify-between #main-header
+  # Slashdown Syntax Example
+  [Get it on GitHub](https://github.com/nickisnoble/slashdown)
+
+/ .container
+  /section #introduction
+    ## What is Slashdown?
+
+    Slashdown combines **Markdown** with *HTML-like* tags for more structured documents.
+
+    - Easy to read
+    - Fast to write
+    - Powerful and flexible
+
+  /section #examples
+    ## Examples
+
+    ### Basic Tag
+    /div = This is a div with inline text
+
+    ### Tag with Classes and IDs
+    / #hero .bg-blue-500.text-white.p-4
+      # Welcome!
+      Click the button below to get started.
+
+      /button = Get Started
+        class="bg-white text-blue-500 px-4 py-2 rounded"
+        onclick="handleClick()"
+
+    ### HTMX Example
+    / #roll-result
+    /button = Roll Dice
+      hx-post="/api/roll?sides=6"
+      hx-trigger="click"
+      hx-target="#roll-result"
+      class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+
+    ### Code Fence
+    Here's some JavaScript code:
+
+    ```javascript
+    function greet(name) {
+      console.log(`Hello, ${name}!`);
+    }
+
+    greet('World');
+    ```
+
+    And some HTML:
+
+    ```html
+    <div class="container">
+      <h1>Hello World</h1>
+    </div>
+    ```
+
+  /section #markdown-support
+    ## Full Markdown Support
+
+    You can use all standard markdown features:
+
+    1. Ordered lists
+    2. With multiple items
+    3. Like this
+
+    **Bold text**, *italic text*, and `inline code`.
+
+    > Blockquotes work too!
+
+    [Links are supported](https://example.com)
+
+/footer .mt-8.text-center
+  Made with ❤️ in Slashdown
+  /a href="https://miniware.team?ref=slashdown" target="_blank" = by Miniware
