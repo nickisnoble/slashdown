@@ -1,3 +1,6 @@
+import type { Node as UnistNode, Position, Point } from 'unist'
+import type { Content as MdastContent, Root as MdastRoot } from 'mdast'
+
 const TOKEN_TYPES = [
   "Tag",
   "Attribute",
@@ -7,7 +10,6 @@ const TOKEN_TYPES = [
   "Markdown",
   "CodeFence"
 ] as const;
-const NODE_TYPES = ["Tag", "Text", "Markdown"] as const;
 
 export declare namespace SD {
   // Tokens
@@ -16,30 +18,69 @@ export declare namespace SD {
     type: TokenType,
     content: string,
     indent: number,
+    line: number,
+    column: number,
+    endLine?: number,
+    endColumn?: number,
   }
 
-  // Nodes
-  type Node = {
-    type: NodeType,
-    [key: string]: any
+  // Re-export unist position types for convenience
+  export type { Point, Position }
+
+  // Slashdown-specific nodes
+
+  /**
+   * Element node representing an HTML element
+   * Can contain both element nodes and mdast content as children
+   */
+  interface Element extends UnistNode {
+    type: 'element'
+    tagName: string
+    attributes?: { [key: string]: string | boolean }
+    classes?: string[]
+    ids?: string[]
+    children: (Element | MdastContent)[]
+    position?: Position
+    data?: any
   }
 
-  type TextNode = Node & {
-    content: string,
+  /**
+   * Root node containing the entire document
+   */
+  interface Root extends UnistNode {
+    type: 'root'
+    children: (Element | MdastContent)[]
+    position?: Position
+    data?: any
   }
 
-  type MarkdownNode = TextNode
+  /**
+   * Union type of all Slashdown-specific node types
+   */
+  type SlashdownNode = Root | Element
 
-  type TagNode = Node & {
-    tagName: string,
-    attributes?: { [key: string]: string | boolean },
-    classes?: string[],
-    ids?: string[],
-    children: Node[]
+  /**
+   * The complete AST type (root node)
+   */
+  type Ast = Root
+
+  /**
+   * Configuration for markdown parsing
+   */
+  interface MarkdownHandlerOptions {
+    /**
+     * Micromark extensions to use
+     */
+    extensions?: any[]
+    /**
+     * MDAST extensions to use
+     */
+    mdastExtensions?: any[]
   }
 
-  type Ast = Node[]
-
+  /**
+   * Renderer interface
+   */
   interface Renderer {
     render(input: Ast): string;
   }

@@ -1,4 +1,4 @@
-# SlashDown
+# Slashdown
 
 For when MDX is too much, but Markdown is too little.
 

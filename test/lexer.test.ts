@@ -24,7 +24,9 @@ test('can lex a simple tag', () => {
     {
       type: "Tag",
       content: "div",
-      indent: 0
+      indent: 0,
+      line: 1,
+      column: 1
     }
   ]
 
@@ -36,8 +38,8 @@ test('can lex a blank tag with a class', () => {
   const lexer = new Lexer(src);
   const tokens = lexer.tokens();
   expect(tokens).toEqual([
-    { type: 'Tag', content: '', indent: 0 },
-    { type: 'Class', content: 'my-class', indent: 0 }
+    { type: 'Tag', content: '', indent: 0, line: 1, column: 1 },
+    { type: 'Class', content: 'my-class', indent: 0, line: 1, column: 3 }
   ])
 })
 
@@ -46,9 +48,9 @@ test('can lex multiple chained selectors', () => {
   const lexer = new Lexer(src)
   const tokens = lexer.tokens()
   expect(tokens).toEqual([
-    { type: 'Tag', content: 'section', indent: 0 },
-    { type: 'Id', content: 'hero', indent: 0 },
-    { type: 'Class', content: 'grid', indent: 0 }
+    { type: 'Tag', content: 'section', indent: 0, line: 1, column: 1 },
+    { type: 'Id', content: 'hero', indent: 0, line: 1, column: 10 },
+    { type: 'Class', content: 'grid', indent: 0, line: 1, column: 16 }
   ])
 })
 
@@ -58,8 +60,8 @@ describe("attributes", () => {
     const lexer = new Lexer(src)
     const tokens = lexer.tokens()
     expect(tokens).toEqual([
-      { type: 'Tag', content: 'div', indent: 0 },
-      { type: 'Attribute', content: 'data-foo="bar baz"', indent: 0 }
+      { type: 'Tag', content: 'div', indent: 0, line: 1, column: 1 },
+      { type: 'Attribute', content: 'data-foo="bar baz"', indent: 0, line: 1, column: 6 }
     ])
   })
 
@@ -68,11 +70,11 @@ describe("attributes", () => {
     const lexer = new Lexer(src)
     const tokens = lexer.tokens()
     expect(tokens).toEqual([
-      { type: 'Tag', content: 'div', indent: 0 },
-      { type: 'Class', content: 'my-class', indent: 0 },
-      { type: 'Id', content: 'id', indent: 0 },
-      { type: 'Attribute', content: 'data-foo="bar baz"', indent: 0 },
-      { type: 'Attribute', content: 'autofocus', indent: 0 }
+      { type: 'Tag', content: 'div', indent: 0, line: 1, column: 1 },
+      { type: 'Class', content: 'my-class', indent: 0, line: 1, column: 6 },
+      { type: 'Id', content: 'id', indent: 0, line: 1, column: 16 },
+      { type: 'Attribute', content: 'data-foo="bar baz"', indent: 0, line: 1, column: 20 },
+      { type: 'Attribute', content: 'autofocus', indent: 0, line: 1, column: 39 }
     ])
   })
 
@@ -85,9 +87,9 @@ describe("attributes", () => {
     const lexer = new Lexer(src)
     const tokens = lexer.tokens()
     expect(tokens).toEqual([
-      { type: 'Tag', content: 'div', indent: 0 },
-      { type: 'Attribute', content: 'data-foo="bar baz"', indent: 0 },
-      { type: 'Markdown', content: 'This is content', indent: 2 }
+      { type: 'Tag', content: 'div', indent: 0, line: 1, column: 1 },
+      { type: 'Attribute', content: 'data-foo="bar baz"', indent: 0, line: 2, column: 1 },
+      { type: 'Markdown', content: 'This is content', indent: 2, line: 3, column: 3, endLine: 3, endColumn: 18 }
     ])
   })
 
@@ -100,9 +102,9 @@ describe("attributes", () => {
     const lexer = new Lexer(src)
     const tokens = lexer.tokens()
     expect(tokens).toStrictEqual([
-      { type: 'Tag', content: 'div', indent: 0 },
-      { type: 'Attribute', content: 'autofocus', indent: 0 },
-      { type: 'Markdown', content: 'This is content', indent: 2 }
+      { type: 'Tag', content: 'div', indent: 0, line: 1, column: 1 },
+      { type: 'Attribute', content: 'autofocus', indent: 0, line: 2, column: 1 },
+      { type: 'Markdown', content: 'This is content', indent: 2, line: 3, column: 3, endLine: 3, endColumn: 18 }
     ])
   })
 
@@ -117,11 +119,11 @@ describe("attributes", () => {
     const lexer = new Lexer(src)
     const tokens = lexer.tokens()
     expect(tokens).toEqual([
-      { type: 'Tag', content: 'input', indent: 0 },
-      { type: 'Attribute', content: 'type="text"', indent: 0 },
-      { type: 'Attribute', content: 'autofocus', indent: 0 },
-      { type: 'Attribute', content: 'data-foo="bar baz"', indent: 0 },
-      { type: 'Markdown', content: 'This is content', indent: 2 }
+      { type: 'Tag', content: 'input', indent: 0, line: 1, column: 1 },
+      { type: 'Attribute', content: 'type="text"', indent: 0, line: 2, column: 1 },
+      { type: 'Attribute', content: 'autofocus', indent: 0, line: 3, column: 1 },
+      { type: 'Attribute', content: 'data-foo="bar baz"', indent: 0, line: 4, column: 1 },
+      { type: 'Markdown', content: 'This is content', indent: 2, line: 5, column: 3, endLine: 5, endColumn: 18 }
     ])
   })
 
@@ -130,10 +132,10 @@ describe("attributes", () => {
     const lexer = new Lexer(src)
     const tokens = lexer.tokens()
     expect(tokens).toEqual([
-      { type: 'Tag', content: 'div', indent: 0 },
-      { type: 'Attribute', content: 'data-foo="bar baz"', indent: 0 },
-      { type: 'Attribute', content: 'autofocus', indent: 0 },
-      { type: 'Text', content: 'This is text', indent: 0 }
+      { type: 'Tag', content: 'div', indent: 0, line: 1, column: 1 },
+      { type: 'Attribute', content: 'data-foo="bar baz"', indent: 0, line: 1, column: 6 },
+      { type: 'Attribute', content: 'autofocus', indent: 0, line: 1, column: 25 },
+      { type: 'Text', content: 'This is text', indent: 0, line: 1, column: 35 }
     ])
   })
 })
@@ -154,14 +156,14 @@ test('lexes indentation and nested items properly', () => {
   const lexer = new Lexer(src)
   const tokens = lexer.tokens()
   expect(tokens).toEqual([
-    { type: 'Tag', content: 'ul', indent: 0 },
-    { type: 'Class', content: 'list', indent: 0 },
-    { type: 'Tag', content: 'li', indent: 2 },
-    { type: 'Tag', content: 'li', indent: 2 },
-    { type: 'Attribute', content: 'data-foo="bar baz"', indent: 2 },
-    { type: 'Tag', content: 'span', indent: 4 },
-    { type: 'Tag', content: 'footer', indent: 0 },
-    { type: 'Markdown', content: 'This is outdented content', indent: 2 }
+    { type: 'Tag', content: 'ul', indent: 0, line: 1, column: 1 },
+    { type: 'Class', content: 'list', indent: 0, line: 1, column: 5 },
+    { type: 'Tag', content: 'li', indent: 2, line: 2, column: 3 },
+    { type: 'Tag', content: 'li', indent: 2, line: 4, column: 3 },
+    { type: 'Attribute', content: 'data-foo="bar baz"', indent: 2, line: 5, column: 3 },
+    { type: 'Tag', content: 'span', indent: 4, line: 6, column: 5 },
+    { type: 'Tag', content: 'footer', indent: 0, line: 7, column: 1 },
+    { type: 'Markdown', content: 'This is outdented content', indent: 2, line: 9, column: 3, endLine: 9, endColumn: 28 }
   ])
 })
 
@@ -180,7 +182,7 @@ test('can lex markdown only', () => {
   const tokens = lexer.tokens()
 
   expect(tokens).toEqual([
-    { type: 'Markdown', content: src, indent: 0 },
+    { type: 'Markdown', content: src, indent: 0, line: 1, column: 1, endLine: 8, endColumn: 16 },
   ])
 })
 
@@ -200,8 +202,8 @@ test('can lex long markdown inside tag', () => {
   const tokens = lexer.tokens()
 
   expect(tokens).toEqual([
-    { type: 'Tag', content: "", indent: 0 },
-    { type: 'Class', content: "container", indent: 0 },
+    { type: 'Tag', content: "", indent: 0, line: 1, column: 1 },
+    { type: 'Class', content: "container", indent: 0, line: 1, column: 3 },
     {
       type: 'Markdown',
       content: dedent`
@@ -214,7 +216,11 @@ test('can lex long markdown inside tag', () => {
 
       More text here.
     `,
-      indent: 2
+      indent: 2,
+      line: 2,
+      column: 3,
+      endLine: 9,
+      endColumn: 18
     },
   ])
 })
